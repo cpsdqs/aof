@@ -1,0 +1,95 @@
+<div id="terms-page" class="page-split-contents">
+    <div class="terms-center">
+        <h1>Privacy Policy</h1>
+    </div>
+    <p>
+        I don't really know how to write a proper privacy policy, but this application does store
+        your data on the server!
+    </p>
+
+    <h2>Unencrypted personal data</h2>
+    <p>
+        This data will be stored <em>unencrypted</em> in the database.
+    </p>
+    <ul>
+        <li>Your username</li>
+        <li>Your token count</li>
+        <li>The unique identifiers of source domains you have added to your account</li>
+        <li>The unique resource identifier of sources you are subscribed to</li>
+        <li>
+            Object metadata:
+            <ul>
+                <li>Which version of this object is currently visible to you</li>
+                <li>Whether or not you have any encrypted data associated with the object</li>
+            </ul>
+        </li>
+    </ul>
+    <p>
+        This data is required for core functionality of the service.
+    </p>
+    <h2>Personal data in logs</h2>
+    <p>
+        Server logs (including e.g. the nginx log) may include your IP address, date and time of
+        accesses, URL queries, and similar data.
+    </p>
+    <h2>Unencrypted shared data</h2>
+    <p>
+        This data may be created by or associated with a user account but is generally accessible to
+        everyone (though it is not indexed).
+    </p>
+    <ul>
+        <li>
+            Source domains that you own are publicly accessible if you know their random identifier, and
+            may optionally be shown in a public list.
+        </li>
+        <li>
+            Source data (essentially any data fetched by a source domain) may contain any
+            information, including personal information. No guarantees can be made about external
+            data.
+        </li>
+    </ul>
+    <h2>Crypto data</h2>
+    <p>
+        This data is used for authentication and encryption.
+    </p>
+    <ul>
+        <li>
+            A key derived from your login password is stored on the server (PBKDF2-SHA512).
+            Note that your plain-text password will still pass through the server for processing, but
+            will not be stored.
+        </li>
+        <li>
+            The ciphertext of your secret key is stored on the server, encrypted using either your
+            login password or a dedicated secret key password (AES256-GCM).
+
+            The secret key will be lost if you lose the password that was used to encrypt it.
+        </li>
+        <li>
+            A random client key is associated with your account and stored on the server.
+        </li>
+        <li>
+            You may elect to store your secret key on your device’s local storage, encrypted using
+            the client key (AES256-GCM), to avoid having to enter your secret key password every time.
+        </li>
+    </ul>
+    <h2>Encrypted personal data</h2>
+    <p>
+        This data is encrypted using your secret key (AES256-GCM).
+        While this data is stored on the server, it can, realistically, only be accessed using the
+        secret key.
+    </p>
+    <ul>
+        <li>
+            Any user data associated with sources and source items, including read state, notes, or
+            other miscellaneous information.
+        </li>
+    </ul>
+    <h2>Deletion of data</h2>
+    <p>
+        You can delete your data in the database at any time from the account settings. Note that this
+        action is irreversible.
+    </p>
+    <p>
+        You can contact the server administrator about deleting data in server logs.
+    </p>
+</div>

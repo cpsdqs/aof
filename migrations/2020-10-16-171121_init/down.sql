@@ -1,0 +1,12 @@
+drop table users;
+drop table user_sources;
+drop table user_source_subscriptions;
+drop table user_source_items;
+drop table source_versions;
+drop table source_item_versions;
+drop table source_version_associated_items;
+drop table source_resources;
+drop table source_item_resource_dependencies;
+drop table registration_tokens;
+drop table source_domains;
+drop table user_source_domain_subscriptions;

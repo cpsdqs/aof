@@ -1,0 +1,35 @@
+.home-user-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 1em;
+    margin: 1em;
+
+    .user-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .user-name {
+            font-weight: bold;
+        }
+
+        .logout-button {
+            --task-button-color: var(--soft-shade);
+            --task-button-fg: var(--fg);
+            font-size: small;
+        }
+    }
+
+    .user-connection {
+        margin-top: 1em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .connection-button {
+            --task-button-color: var(--soft-shade);
+            --task-button-fg: var(--fg);
+            font-size: small;
+        }
+    }
+}

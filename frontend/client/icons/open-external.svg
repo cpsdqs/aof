@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>open-external</title>
+    <g id="open-external" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M8,4 L8,5 L4,5 C3.48716416,5 3.06449284,5.38604019 3.00672773,5.88337887 L3,6 L3,12 C3,12.5522847 3.44771525,13 4,13 L4,13 L10,13 C10.5522847,13 11,12.5522847 11,12 L11,12 L11,8 L12,8 L12,12 C12,13.1045695 11.1045695,14 10,14 L4,14 C2.8954305,14 2,13.1045695 2,12 L2,6 C2,4.8954305 2.8954305,4 4,4 L8,4 Z" id="box" fill="#000000"></path>
+        <polyline id="arrow-head" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" points="9.5 2.5 13.5 2.5 13.5 6.5"></polyline>
+        <line x1="13.5" y1="2.5" x2="8" y2="8" id="arrow-line" stroke="#000000" stroke-linecap="round"></line>
+    </g>
+</svg>

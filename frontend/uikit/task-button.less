@@ -1,0 +1,114 @@
+@import './prelude';
+
+.task-button {
+    display: inline-block;
+    position: relative;
+
+    --task-button-color: var(--accent);
+    --task-button-fg: var(--accent-fg);
+    --task-button-spin: var(--fg);
+
+    .task-button-inner {
+        min-width: inherit;
+        background: var(--task-button-color);
+        color: var(--task-button-fg);
+        border-radius: 100em;
+        padding: 0.2em 0.8em;
+        margin: 0;
+        border: none;
+        font: inherit;
+        font-weight: 500;
+        transition: opacity 0.3s @easing;
+        -webkit-tap-highlight-color: transparent;
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: inherit;
+            background: #000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s @easing;
+        }
+
+        &:active::before {
+            opacity: 0.3;
+            transition: none;
+        }
+    }
+
+    .task-button-loading {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        border-radius: 100em;
+        border: 0.2em solid var(--task-button-color);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s @easing;
+    }
+
+    .task-button-loading-spin {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        transition: opacity 0.2s @easing;
+        opacity: 0;
+
+        &.is-visible {
+            opacity: 1;
+            z-index: 2;
+        }
+    }
+
+    .task-button-loading-spin-inner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        height: 100%;
+        border: 0.2em solid transparent;
+        border-bottom-color: var(--task-button-spin);
+        border-radius: 100em;
+        box-sizing: border-box;
+        transform: translate(-50%, -50%);
+        transition: opacity 0.2s @easing;
+    }
+
+    &.is-loading {
+        .task-button-inner {
+            opacity: 0;
+        }
+
+        .task-button-loading {
+            opacity: 1;
+        }
+
+        .task-button-loading-spin-inner {
+            animation: task-button-loading-inner 0.8s linear infinite;
+
+            @keyframes task-button-loading-inner {
+                0% {
+                    transform: translate(-50%, -50%) rotate(0deg);
+                }
+                100% {
+                    transform: translate(-50%, -50%) rotate(360deg);
+                }
+            }
+        }
+    }
+
+    &.is-disabled {
+        --task-button-color: var(--accent-faded);
+    }
+}

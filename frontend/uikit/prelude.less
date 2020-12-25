@@ -1,0 +1,59 @@
+@easing: cubic-bezier(.2, .3, 0, 1);
+
+body {
+    --easing: cubic-bezier(.2, .3, 0, 1);
+    --monospace: Menlo, Inconsolata, monospace;
+
+    --bg: #333;
+    --card-bg: #222;
+    --soft-card-bg: mix(#333, #222, 50%);
+    --header-bg: #111;
+    --soft-outline: fade(#fff, 30%);
+    --soft-shade: fade(#fff, 20%);
+    --fg: #fff;
+    --fg-fade-50: fade(#fff, 50%);
+    --accent: #1883ff;
+    --accent-faded: desaturate(#1883ff, 100%);
+    --accent-fg: #fff;
+    --iradius: 4px;
+    --radius: 8px;
+    --error-bg: fade(#f44336, 20%);
+    --error: #f44336;
+    --warning-bg: fade(#fee12a, 20%);
+    --warning: fade(#fee12a, 20%);
+    --warning-fg: #fee12a;
+    --focus-ring: fade(#1883ff, 50%);
+    --focus-ring-0: fade(#1883ff, 0%);
+    --dialog-backdrop: fade(#000, 30%);
+
+    @media (prefers-color-scheme: light) {
+        //--bg: #eee;
+        //--header-bg: #ccc;
+        //--card-bg: #fff;
+
+        --bg: #f9f3e8;
+        --header-bg: #e9e3d8;
+        --card-bg: #fffcf0;
+        --soft-card-bg: mix(#f9f3e8, #fffcf0, 50%);
+        // --soft-outline: #c9c3b8;
+        --soft-outline: fade(#000, 30%);
+        --soft-shade: fade(#000, 20%);
+        --dialog-backdrop: fade(#f9f3e8, 50%);
+
+        --warning-bg: fade(#fee12a, 20%);
+        --warning: #fee12a;
+        --warning-fg: darken(#fee12a, 40%);
+
+        --fg: #333;
+        --fg-fade-50: fade(#333, 50%);
+    }
+
+    color-scheme: light dark;
+    background: var(--bg);
+    color: var(--fg);
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+}

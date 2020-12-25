@@ -1,0 +1,9 @@
+[package]
+name = "deno-dom"
+version = "0.1.0"
+authors = ["cpsdqs <cpsdqs@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+deno-dom-core = { path = "deno-dom-core" }
+deno_core = "0.69"

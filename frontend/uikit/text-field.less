@@ -1,0 +1,41 @@
+@import './prelude';
+
+.text-field {
+    display: inline-flex;
+    width: 16em;
+    background: var(--bg);
+    border: 1px solid var(--soft-outline);
+    border-radius: var(--iradius);
+    box-sizing: border-box;
+
+    .p-inner-field {
+        margin: 0;
+        background: none;
+        font: inherit;
+        color: inherit;
+        padding: 0.5em 1em;
+        border: none;
+        width: 0;
+        flex: 1;
+
+        &:focus {
+            outline: none;
+        }
+
+        &::-webkit-credentials-auto-fill-button:not(:hover) {
+            color: inherit;
+            background-color: currentColor;
+        }
+    }
+
+    &.is-focused {
+        box-shadow: 0 0 0 0.2em var(--focus-ring);
+        animation: text-field-focus-in 0.3s @easing;
+
+        @keyframes text-field-focus-in {
+            0% {
+                box-shadow: 0 0 0 1em var(--focus-ring-0);
+            }
+        }
+    }
+}

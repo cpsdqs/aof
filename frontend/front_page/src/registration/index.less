@@ -1,0 +1,49 @@
+.registration-container {
+    .registration-title {
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 600;
+        font-size: small;
+        margin-bottom: 0.5rem;
+    }
+
+    .token-input-container {
+        .token-input {
+            width: 100%;
+            margin: 0;
+            border: none;
+            background: var(--bg);
+            font: inherit;
+            color: inherit;
+            border-radius: var(--iradius);
+            padding: 0.5em 1em;
+            box-sizing: border-box;
+
+            &:focus {
+                outline: none;
+                box-shadow: 0 0 0 0.2em var(--focus-ring);
+                animation: token-input-focus-in 0.3s cubic-bezier(.2, .3, 0, 1);
+
+                @keyframes token-input-focus-in {
+                    0% {
+                        box-shadow: 0 0 0 1em var(--focus-ring-0);
+                    }
+                }
+            }
+        }
+    }
+
+    .button-container {
+        margin-top: 0.5em;
+        height: 2em;
+        transition: all 0.3s cubic-bezier(0.2, 0.3, 0, 1);
+        overflow: hidden;
+        text-align: center;
+
+        &.is-hidden {
+            margin-top: 0;
+            height: 0;
+        }
+    }
+}

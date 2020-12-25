@@ -1,0 +1,413 @@
+import { h } from 'preact';
+import { createRef, useRef, Fragment, PureComponent } from 'preact/compat';
+import { Progress, TaskButton } from 'uikit';
+import {
+    api,
+    connectf,
+    Connection,
+    IFetchState,
+    join,
+    load,
+    parseUri,
+    SOURCE,
+    SOURCE_ITEM,
+    SOURCE_ITEM_DATA,
+    SOURCE_ITEM_FETCH,
+    SOURCE_ITEM_REQUEST,
+    SOURCE_SET_USER_DATA,
+    SOURCE_USER_DATA,
+    SourceItemData,
+    SourceUserData,
+} from '../data';
+import get from '../locale';
+import { DownloadedIcon, DownloadIcon, NoDataIcon, OpenExternalIcon } from './icons';
+import './source-item.less';
+import ErrorDisplay from './error-display';
+import FetchLogDialog from './fetch-log-dialog';
+
+export function SourceItemHeader({ source, uri }: { source: string, uri: string }) {
+    const sourceUri = source;
+    return connectf(join(SOURCE, parseUri(source)), view => connectf(join(SOURCE_USER_DATA, parseUri(source)), userDataView => {
+        let openCanonical = <span />;
+
+        const itemPath = '/' + parseUri(uri).slice(1).join('/');
+
+        const source = view.get();
+        let item = null;
+        if (source && source.data) {
+            for (const i of source.data.items) {
+                if (i.path === itemPath) {
+                    item = i;
+                    break;
+                }
+            }
+        }
+
+        const userData = new SourceUserData(userDataView.get());
+        let readState = userData.itemReadState(itemPath);
+
+        const toggleRead = async () => {
+            // FIXME: this modifies local state BEFORE committing!!
+            readState.read = !readState.read;
+            await load(SOURCE_SET_USER_DATA, { uri: sourceUri, data: userData.data });
+        };
+        const readStateButton = (
+            <TaskButton run={toggleRead}>
+                {readState.read ? get('sources.items.mark_unread') : get('sources.items.mark_read')}
+            </TaskButton>
+        );
+
+        if (typeof item?.tags === 'object' && typeof (item!.tags as any).canonical_url === 'string') {
+            openCanonical = (
+                <div class="source-item-open-canonical">
+                    <a
+                        target="_blank"
+                        rel="nofollow noreferrer"
+                        href={(item!.tags as any).canonical_url}>
+                        {get('sources.details.open_canonical')}
+                        {' '}
+                        <OpenExternalIcon />
+                    </a>
+                </div>
+            );
+        }
+
+        return (
+            <div class="source-item-header">
+                {readStateButton}
+                {openCanonical}
+            </div>
+        );
+    }));
+}
+
+const DEFAULT_SHADOW_STYLES = `
+/* default styles */
+h1, h2, h3, h4, h5, h6 {
+    text-align: left;
+}
+img {
+    max-width: 100%;
+}
+a {
+    color: var(--accent);
+}
+.removed-tag {
+    display: none;
+}
+hr {
+    max-width: 4em;
+    margin: 0 auto;
+}
+`;
+const DEFAULT_NOTE_STYLES = DEFAULT_SHADOW_STYLES;
+
+export function SourceItemContents({ uri, referrer }: { uri: string, referrer?: string }) {
+    return connectf(join(SOURCE_ITEM_DATA, parseUri(uri)), view => {
+        let contents;
+        if (view.hasError) {
+            contents = <ErrorDisplay error={view.getError()} />;
+        } else if (view.loaded) {
+            const data = view.get();
+            if (data) {
+                contents = <SourceItemContentRender data={data} referrer={referrer} />;
+            } else {
+                contents = <SourceItemNoData uri={uri} />;
+            }
+        } else {
+            contents = <Progress block />;
+        }
+
+        return (
+            <div class="source-item-contents">
+                {contents}
+            </div>
+        )
+    });
+}
+
+class HtmlContainer extends PureComponent<HtmlContainer.Props> {
+    node = createRef<HTMLDivElement>();
+    aspectImages: HTMLImageElement[] = [];
+
+    load() {
+        const node = this.node.current;
+        if (!node) return;
+
+        if (!node.shadowRoot) {
+            node.attachShadow({ mode: 'open' });
+        }
+        const shadow = node.shadowRoot!;
+
+        const dp = new DOMParser();
+        const DOM_PRE = '<!doctype html><html><body>';
+        const DOM_POST = '</body></html>';
+        const doc = dp.parseFromString(DOM_PRE + this.props.html + DOM_POST, 'text/html');
+
+        const demoteNodeToText = (node: HTMLElement) => {
+            let replacement = doc.createElement('div');
+            replacement.className = 'removed-tag';
+            replacement.textContent = node.outerHTML;
+            node.parentNode!.insertBefore(replacement, node);
+            node.remove();
+        };
+        doc.querySelectorAll('script').forEach(demoteNodeToText);
+        doc.querySelectorAll('embed').forEach(demoteNodeToText);
+        doc.querySelectorAll('applet').forEach(demoteNodeToText);
+        doc.querySelectorAll('object').forEach(demoteNodeToText);
+        doc.querySelectorAll('frame').forEach(demoteNodeToText);
+        doc.querySelectorAll('frameset').forEach(demoteNodeToText);
+
+        doc.querySelectorAll('iframe').forEach(frame => {
+            if (!frame.hasAttribute('sandbox')) {
+                frame.setAttribute('sandbox', 'allow-scripts allow-popups allow-same-origin');
+            }
+            frame.sandbox.remove('allow-top-navigation');
+            frame.sandbox.remove('allow-top-navigation-by-user-activation');
+            frame.sandbox.remove('allow-orientation-lock');
+            frame.sandbox.remove('allow-pointer-lock');
+            frame.sandbox.remove('allow-downloads-without-user-activation');
+            // frame.sandbox.remove('allow-same-origin');
+
+            frame.allow = 'encrypted-media fullscreen picture-in-picture';
+            frame.referrerPolicy = 'no-referrer';
+        });
+
+        doc.querySelectorAll('a').forEach(anchor => {
+            anchor.target = '_blank';
+            anchor.rel = 'nofollow noreferrer';
+        });
+
+        this.aspectImages = [];
+        doc.querySelectorAll('img').forEach(image => {
+            // images often have html event listeners...
+            for (const attr of image.getAttributeNames()) {
+                if (attr.startsWith('on')) image.removeAttribute(attr);
+            }
+            if (image.hasAttribute('width') && image.hasAttribute('height')) {
+                image.dataset.aofWidth = image.getAttribute('width')!;
+                image.dataset.aofHeight = image.getAttribute('height')!;
+                image.removeAttribute('width');
+                image.removeAttribute('height');
+
+                this.aspectImages.push(image);
+            }
+
+            try {
+                const srcUrl = new URL(image.src);
+                if (['http:', 'https:'].includes(srcUrl.protocol)) {
+                    const s = encodeURIComponent(srcUrl.toString());
+                    const r = this.props.referrer ? encodeURIComponent(this.props.referrer) : null;
+                    image.src = api(`resources/camo?url=${s}` + (r ? `&referrer=${r}` : ''));
+
+                    image.addEventListener('click', () => {
+                        // TODO: use some sort of lightbox instead
+                        const a = document.createElement('a');
+                        a.target = '_blank';
+                        a.rel = 'nofollow noreferrer';
+                        a.href = srcUrl.toString();
+                        a.click();
+                    });
+                }
+            } catch {}
+        });
+
+        const childNodes = [];
+        for (let i = 0; i < doc.body.childNodes.length; i++) {
+            const child = doc.body.childNodes[i];
+            childNodes.push(child);
+        }
+
+        shadow.innerHTML = '';
+        for (const child of childNodes) {
+            doc.body.removeChild(child);
+            shadow.appendChild(child);
+        }
+
+        if (this.props.onShadowRender) this.props.onShadowRender(shadow);
+        this.onResize();
+    }
+
+    onResize = () => {
+        for (const image of this.aspectImages) {
+            const containerWidth = (image.parentNode! as HTMLElement).offsetWidth;
+            const suggestedWidth = +image.dataset.aofWidth!;
+            const suggestedHeight = +image.dataset.aofHeight!;
+
+            image.style.width = image.style.height = '';
+            if (suggestedWidth < containerWidth) {
+                image.style.width = suggestedWidth + 'px';
+                image.style.height = suggestedHeight + 'px';
+            } else {
+                image.style.width = containerWidth + 'px';
+                image.style.height = (containerWidth * suggestedHeight / suggestedWidth) + 'px';
+            }
+        }
+    };
+
+    componentDidMount() {
+        this.load();
+        window.addEventListener('resize', this.onResize);
+    }
+
+    componentDidUpdate(prevProps: HtmlContainer.Props) {
+        if (prevProps.html !== this.props.html) this.load();
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.onResize);
+    }
+
+    render() {
+        return <div ref={this.node} class="html-container" />;
+    }
+}
+namespace HtmlContainer {
+    export interface Props {
+        html: string,
+        onShadowRender?: (shadow: ShadowRoot) => void,
+        referrer?: string,
+    }
+}
+
+function SourceItemContentRender({ data, referrer }: { data: SourceItemData, referrer?: string }) {
+    const addDefaultStyles = (shadow: ShadowRoot) => {
+        const style = shadow.ownerDocument.createElement('style');
+        style.innerHTML = DEFAULT_SHADOW_STYLES;
+        shadow.insertBefore(style, shadow.firstChild);
+    };
+
+    let parts = [];
+
+    if (typeof data.title === 'string') {
+        parts.push(
+            <h1 class="source-item-title">
+                {data.title}
+            </h1>
+        );
+    }
+    if (data.preface && typeof data.preface === 'object') {
+        for (const k in data.preface) {
+            const v = (data.preface as any)[k];
+            if (typeof v === 'string') {
+                parts.push(
+                    <NoteItem id={k} html={v} referrer={referrer} />
+                );
+            }
+        }
+    }
+    if (typeof data.contents === 'string') {
+        parts.push(
+            <HtmlContainer
+                referrer={referrer}
+                html={data.contents}
+                onShadowRender={addDefaultStyles} />
+        );
+    }
+    if (data.appendix && typeof data.appendix === 'object') {
+        for (const k in data.appendix) {
+            const v = (data.appendix as any)[k];
+            if (typeof v === 'string') {
+                parts.push(
+                    <NoteItem id={k} html={v} referrer={referrer} />
+                );
+            }
+        }
+    }
+    return <Fragment>{parts}</Fragment>;
+}
+
+function NoteItem({ id, html, referrer }: { id: string, html: string, referrer?: string }) {
+    const addNoteStyles = (shadow: ShadowRoot) => {
+        const style = shadow.ownerDocument.createElement('style');
+        style.innerHTML = DEFAULT_NOTE_STYLES;
+        shadow.insertBefore(style, shadow.firstChild);
+    };
+
+    return (
+        <div class="source-item-note">
+            <div class="note-id">{id}</div>
+            <HtmlContainer
+                html={html}
+                referrer={referrer}
+                onShadowRender={addNoteStyles} />
+        </div>
+    );
+}
+
+function SourceItemNoData({ uri }: { uri: string }) {
+    // TODO: show link to open canonical
+
+    return (
+        <div class="source-item-no-data">
+            <div class="no-data-inner">
+                <NoDataIcon class="no-data-icon" />
+                <div class="no-data-label">
+                    {get('sources.items.no_data')}
+                </div>
+            </div>
+            <div class="no-data-fetch-container">
+                <SourceItemFetch uri={uri} />
+            </div>
+        </div>
+    );
+}
+
+export function SourceItemFetch({ uri }: { uri: string }) {
+    const taskButtonRef = useRef<TaskButton>(null);
+
+    const update = async () => {
+        await load(SOURCE_ITEM_REQUEST, { uri });
+    };
+    const onPing = async (value: IFetchState) => {
+        if (value.result) {
+            if (!value.result.success) {
+                console.error('Fetch error', value.result.log);
+                taskButtonRef.current?.showError(
+                    get('sources.fetch.unspecified_error'),
+                    {
+                        run: () => FetchLogDialog.run(value.result!.log),
+                        label: get('sources.fetch.log.show'),
+                    },
+                );
+            } else {
+                console.debug('Fetch success', value.result.log);
+            }
+        }
+    };
+
+    return connectf(join(SOURCE_ITEM, parseUri(uri)), view => {
+        let icon = <Progress />;
+        let isLoaded = false;
+        if (view.loaded) {
+            const item = view.get();
+            if (item && item.loaded) {
+                isLoaded = true;
+                icon = <DownloadedIcon />;
+            } else icon = <DownloadIcon />;
+        }
+
+        return (
+            <Connection<IFetchState>
+                view={join(SOURCE_ITEM_FETCH, parseUri(uri))}
+                onPing={onPing}
+                render={fetchStateView => {
+                    const fetchState = fetchStateView.get();
+                    const loading = !!(fetchState && fetchState.loading);
+
+                    return (
+                        <span class="source-item-fetch">
+                            <TaskButton
+                                class={isLoaded ? 'is-loaded' : ''}
+                                ref={taskButtonRef}
+                                loading={loading}
+                                run={update}
+                                onClick={(e: MouseEvent) => e.stopPropagation()}>
+                                {icon}
+                            </TaskButton>
+                        </span>
+                    );
+                }} />
+        );
+    });
+}

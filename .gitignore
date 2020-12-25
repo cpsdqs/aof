@@ -1,0 +1,9 @@
+target
+node_modules
+/static/static/dist
+/static/client
+
+aof.toml
+aof.db
+aof.db-shm
+aof.db-wal

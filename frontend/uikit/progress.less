@@ -1,0 +1,52 @@
+.progress-indicator-block {
+    display: block;
+    padding: 1em;
+    text-align: center;
+}
+
+.progress-indicator {
+    position: relative;
+    display: inline-block;
+    width: 1.2em;
+    height: 1em;
+    vertical-align: -0.17em;
+
+    .progress-indicator-lines {
+        position: absolute;
+        // top: calc(50% - var(--size) / 2);
+        // left: calc(50% - var(--size) / 2);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.progress-indicator-lines {
+    --size: 2em;
+    --line-length: calc(var(--size) * 0.27);
+    --line-width: calc(var(--size) * 0.12);
+    --line-offset: calc(var(--size) * 0.25);
+    width: var(--size);
+    height: var(--size);
+    position: relative;
+    display: inline-block;
+
+    .progress-line {
+        position: absolute;
+        --poffset: calc(var(--line-width) / 2);
+        --pxoffset: calc(var(--line-width) / -2);
+        // top: calc(50% - var(--poffset));
+        // left: calc(50% - var(--poffset));
+        top: 50%;
+        left: 50%;
+        transform-origin: var(--poffset) var(--poffset);
+        border-radius: 100em;
+        width: var(--line-length);
+        height: var(--line-width);
+        background: currentColor;
+    }
+
+    &.is-small {
+        --size: 1.2em;
+    }
+}

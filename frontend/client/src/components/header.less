@@ -1,0 +1,142 @@
+.app-header {
+    display: flex;
+    flex-shrink: 0;
+    padding: 0.5em 1em;
+    padding-top: calc(0.5em + env(safe-area-inset-top));
+    padding-left: calc(1em + env(safe-area-inset-left));
+    padding-right: calc(1em + env(safe-area-inset-right));
+    justify-content: space-between;
+    background: var(--header-bg);
+
+    .app-route {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+        font-weight: 600;
+        white-space: nowrap;
+
+        .route-item {
+            display: inline-block;
+            cursor: default;
+            transition: color 0.2s var(--easing);
+
+            @media (hover: hover) {
+                &:hover {
+                    color: var(--accent);
+                }
+            }
+            &:active {
+                color: var(--accent);
+                transition: none;
+            }
+
+            .route-icon {
+                height: 1.5em;
+                vertical-align: middle;
+            }
+
+            animation: header-route-item-in 0.3s var(--easing) 0.05s backwards;
+            @keyframes header-route-item-in {
+                0% {
+                    transform: translateX(-1em);
+                    opacity: 0;
+                }
+            }
+        }
+        .route-arrow {
+            display: inline-block;
+            position: relative;
+            width: 2em;
+            height: 1em;
+            opacity: 0.5;
+            vertical-align: -0.1em;
+
+            &::before, &::after {
+                content: '';
+                background: currentColor;
+                width: 0.6em;
+                height: 0.2em;
+                margin-top: -0.1em;
+                margin-left: -0.3em;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform-origin: 0.5em 50%;
+                transform: rotate(-45deg);
+            }
+            &::after {
+                transform: rotate(45deg);
+            }
+
+            animation: header-route-arrow-in 0.3s var(--easing);
+            @keyframes header-route-arrow-in {
+                0% {
+                    transform: translateX(-0.5em);
+                    opacity: 0;
+                }
+            }
+        }
+
+        @media (max-width: 900px) {
+            .route-arrow {
+                display: none;
+
+                &::before {
+                    transform: translateX(-0.6em) rotate(135deg);
+                }
+                &::after {
+                    transform: translateX(-0.6em) rotate(-135deg);
+                }
+
+                &:nth-last-child(2) {
+                    display: inline-block;
+                }
+            }
+
+            .route-item {
+                display: none;
+
+                &:last-of-type {
+                    display: inline-block;
+                }
+            }
+        }
+    }
+
+    .header-status-container {
+        display: flex;
+        align-items: center;
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            margin-right: 0.5em;
+
+            .status-padding {
+                padding-left: 0.5em;
+            }
+
+            .status-crypto {
+                display: inline-block;
+                text-align: center;
+                width: 1.2em;
+
+                .manual-decrypt-button {
+                    font-size: 0.8em;
+
+                    .manual-decrypt-label {
+                        margin-right: 0.3em;
+                    }
+                }
+            }
+        }
+    }
+}
+
+body.is-ios-standalone .app-header {
+    @media (prefers-color-scheme: light) {
+        --header-bg: #333;
+        --fg: #fff;
+        color: var(--fg);
+    }
+}

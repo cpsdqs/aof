@@ -1,0 +1,171 @@
+<div class="page-split-contents">
+    <h1>AOF Documentation</h1>
+    <h2>Domain Scripts</h2>
+    <p>
+        Domains are specialized handlers for certain types of resources on the web (e.g. RSS).
+        As input they accept URI paths, and should output the resource in a standard format.
+    </p>
+    <p>
+        Resources are usually referred to in a URI such as
+        <code>ebesdtzd:///hello/world</code>, where <code>ebesdtzd</code> is the Domain ID
+        (opaque to the domain), and <code>/hello/world</code> is the path. This path is then
+        passed to the domain script.
+    </p>
+    <p>
+        Domain scripts are written in Javascript and are executed in the
+        <a target="_blank" rel="nofollow noreferrer" href="https://deno.land">Deno</a>
+        runtime, though Deno itself cannot be accessed from within a script.
+    </p>
+    <p>
+        Ideally, domain scripts should be portable in that they work both in a typical browser
+        environment and in AOF. Hence, the available API is limited to a subset of standard browser
+        APIs.
+    </p>
+    <h3>Available Browser API</h3>
+    <ul>
+        <li>
+            The <code>DOMParser</code> API is available in limited capacity (see the
+            <a target="_blank" rel="nofollow noreferrer"
+               href="https://github.com/b-fuze/deno-dom"><code>deno-dom</code></a>
+            package for details on how much is available).
+            Notable features that <em>do not work</em>:
+            <ul>
+                <li><code>Node#removeChild</code></li>
+                <li>
+                    <code>DOMParser#parseFromString</code> with any MIME type that isn't
+                    <code>text/html</code>.
+
+                    Note that this means you cannot parse XML non-destructively! (e.g.
+                    <code>&lt;link&gt;</code> cannot be parsed properly in RSS XML)
+                </li>
+            </ul>
+        </li>
+        <li>
+            <code>JSON</code>
+        </li>
+        <li>
+            <code>fetch</code> (including <code>Request</code>, <code>Response</code>,
+            <code>Blob</code>, etc.)
+        </li>
+    </ul>
+    <h3>Expected Format</h3>
+    <p>
+        Domain scripts should export the following interface:
+    </p>
+    <pre>
+type SourceOutput = {
+    // when was this source last updated?
+    // format must either be "2020-12-31" or "2020-12-31T16:59:00Z" (RFC3339).
+    // adding this data is strongly recommended.
+    last_updated?: string | null,
+    tags: {
+        [k]: any, // see below
+    },
+    // items in this source
+    items: SourceOutputItem[],
+};
+type SourceOutputItem = {
+    // A path that can be passed to loadSourceItem to load this item.
+    path: string,
+    // Virtual items only exist in the source and cannot actually be loaded
+    // (the path can be a dummy).
+    virtual?: boolean,
+    tags?: {
+        [k]: any, // see below
+    },
+};
+
+type SourceItemOutput = {
+    // same as SourceOutput.last_updated, but not really required.
+    last_updated?: string | null,
+    tags: {
+        [k]: any, // see below
+    },
+};
+
+export function loadSource(path: string): SourceOutput;
+export function loadSourceItem(path: string): SourceItemOutput;
+    </pre>
+
+    <p>
+        To maximize flexibility, any data not required by the server is stored in a tagged format.
+    </p>
+    <h4>Source Tags</h4>
+    <ul>
+        <li>
+            <code>title</code>: this string will be displayed as the title of the source.
+        </li>
+        <li>
+            <code>canonical_url</code>: this should be a URL that points to the “canonical source”
+            of this source (e.g. the <code>&lt;link&gt;</code> in RSS feeds).
+        </li>
+        <li>
+            <code>authors</code>: this should be an array of author objects, which must have a
+            <code>name</code> field containing a string, and can optionally have a <code>url</code>
+            field to link to the author’s page, if there is one.
+        </li>
+        <li>
+            <code>description</code>: this should be an object like
+            <code>{ summary: 'hello' }</code>.
+            The object key may be used to signify sections in the description, such as “summary”
+            or “copyright”.
+            Sections will be displayed in the same order as in the object.
+        </li>
+        <li>
+            <code>content_tags</code>: this should be an object:
+            <pre>
+type ContentTags = {
+    [tag_category]: ContentTag[]
+};
+type ContentTag {
+    name: string,
+    url?: string,
+}
+            </pre>
+
+            This section is used to signify content tags, which can be used for filtering.
+            Tag categories can be used to group different kinds of tags.
+        </li>
+        <li>
+            <code>completion</code>: this should be an object. Currently only one field
+            named <code>total</code> that indicates the number of total items in this
+            source is recognized.
+        </li>
+    </ul>
+    <h4>Source Item Descriptor Tags</h4>
+    <p>
+        These tags are used for item descriptors, i.e. the objects in
+        <code>SourceOutput.items</code>.
+        They should only describe the item, and should not load its full contents.
+    </p>
+    <ul>
+        <li>
+            <code>title</code>: the title of this item
+        </li>
+        <li>
+            <code>canonical_url</code>: if this is a <code>virtual</code> item, then this tag
+            should be present to indicate where the resource may be found.
+        </li>
+        <li>
+            <code>contents</code>: this may contain a small preview of the contents for virtual
+            items (like the <code>description</code> field in RSS feeds).
+        </li>
+    </ul>
+    <h4>Source Item Data Tags</h4>
+    <ul>
+        <li>
+            <code>title</code>: the title of this item
+        </li>
+        <li>
+            <code>preface</code>: similar to the <code>description</code> field of sources, this
+            should contain an object with sections. The sections may contain HTML.
+            Any sections in the preface will be shown before the contents.
+        </li>
+        <li>
+            <code>contents</code>: a string containing HTML
+        </li>
+        <li>
+            <code>appendix</code>: similar to the preface, but shown after the contents.
+        </li>
+    </ul>
+</div>

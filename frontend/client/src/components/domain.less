@@ -1,0 +1,72 @@
+.domain-item {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 0.5em 1em;
+
+    .domain-title-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .domain-title {
+            white-space: nowrap;
+            flex: 1;
+            width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            .domain-name {
+                margin-left: 0.4em;
+                font-weight: 600;
+            }
+        }
+
+        .domain-flags {
+            margin-left: 0.5em;
+            flex-shrink: 0;
+        }
+    }
+    .domain-description {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+
+        .description-line + .description-line {
+            display: none;
+        }
+    }
+
+    &.is-large {
+        .domain-description {
+            white-space: normal;
+
+            .description-line {
+                display: block;
+                min-height: 1em;
+
+                &:nth-child(2) {
+                    // first desc line after the domain id
+                    display: inline;
+                }
+            }
+        }
+    }
+
+    &.is-selected {
+        background: var(--accent);
+        color: var(--accent-fg);
+    }
+}
+
+.domain-id {
+    display: inline-block;
+    border: 1px solid var(--soft-outline);
+    border-radius: var(--iradius);
+    font-size: 0.83em;
+    font-weight: 500;
+    padding: 0.05em 0.2em;
+    vertical-align: 0.1em;
+
+    -webkit-user-select: text;
+    user-select: text;
+}

@@ -1,0 +1,70 @@
+.sources-list {
+    .list-empty {
+        padding: 1em;
+        text-align: center;
+        opacity: 0.7;
+    }
+
+    .sources-list-null {
+        display: none;
+    }
+
+    .search-box {
+        position: relative;
+        z-index: 1;
+    }
+
+    .sources-filters {
+        margin: 1em;
+        margin-top: -1.7em;
+        background: var(--soft-card-bg);
+        border-radius: var(--radius);
+        padding: 1em 1em 0.3em 1em;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+
+        .filters-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: small;
+        }
+
+        .filter-read {
+            .read-switch {
+                font: inherit;
+                background: var(--bg);
+                color: var(--fg-fade-50);
+                border: none;
+                margin: 0;
+                padding: 0.1em 0.8em;
+                transition: background 0.3s var(--easing);
+
+                &:active {
+                    background: var(--accent);
+                    color: var(--accent-fg);
+                    transition: background 0.05s var(--easing);
+                }
+
+                &:first-child {
+                    padding-right: 0.5em;
+                    margin-right: 1px;
+                    border-radius: 100em 0 0 100em;
+                }
+                &:last-child {
+                    padding-left: 0.5em;
+                    border-radius: 0 100em 100em 0;
+                }
+
+                &.is-active {
+                    background: var(--accent);
+                    color: var(--accent-fg);
+                }
+            }
+        }
+
+        .refresh-button {
+            --task-button-color: var(--bg);
+            --task-button-fg: var(--fg);
+        }
+    }
+}

@@ -1,0 +1,74 @@
+body {
+    margin: 0;
+    font-family: 'Avenir Next', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Roboto, Ubuntu, sans-serif;
+    font-size: 14px;
+}
+
+.app {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    overflow: hidden;
+    flex-direction: column;
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    -webkit-user-select: none;
+    user-select: none;
+
+    .app-loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex: 1;
+    }
+}
+
+body.is-ios-standalone {
+    .app {
+        // NOTE: I have no idea why any of the following things happen
+        // for the app to fill the screen on iPhone, it *cannot* have position: fixed.
+        position: absolute;
+        // 100% is actually too short. Using 100% will create a huge bottom margin.
+        height: 100vh;
+    }
+}
+
+#js-load-error {
+    padding: 1em;
+    max-width: 76ex;
+    margin: 0 auto;
+    text-align: center;
+    animation: js-load-error-in 1s 3s backwards;
+    @keyframes js-load-error-in {
+        0% {
+            opacity: 0;
+        }
+    }
+
+    h1 {
+        color: #f44336;
+    }
+
+    .load-error-hide {
+        display: none;
+    }
+
+    noscript {
+        font-size: 1.2em;
+    }
+
+    p, ul {
+        text-align: left;
+    }
+
+    .load-error-reload {
+        display: inline-block;
+        margin: 0 auto;
+        font-size: 1.2em;
+    }
+}
+

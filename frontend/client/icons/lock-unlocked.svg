@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>lock-unlocked</title>
+    <g id="lock-unlocked" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="body" fill="#000000" x="3" y="7" width="10" height="7" rx="1"></rect>
+        <path d="M8,2 C6.8954305,2 6,2.8954305 6,4 L6,5 C6,5.27614237 5.77614237,5.5 5.5,5.5 C5.22385763,5.5 5,5.27614237 5,5 L5,4 L5.00509269,3.82372721 C5.09633912,2.24891996 6.40231912,1 8,1 C9.65685425,1 11,2.34314575 11,4 L11,4 L11,8 L10,8 L10,4 C10,2.8954305 9.1045695,2 8,2 Z" id="hook-thingy" fill="#000000"></path>
+    </g>
+</svg>

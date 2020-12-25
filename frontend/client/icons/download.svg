@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>download</title>
+    <g id="download" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="8" y1="3" x2="8" y2="13" id="arrow-line" stroke="#000000" stroke-width="1.3"></line>
+        <polyline id="arrow-head" stroke="#000000" stroke-width="1.3" points="4 9 8 13 12 9"></polyline>
+    </g>
+</svg>

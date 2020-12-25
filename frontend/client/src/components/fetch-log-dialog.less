@@ -1,0 +1,98 @@
+.dialog-portal .dialog-portal-inner .fetch-log-dialog {
+    max-width: 700px;
+}
+
+.fetch-log {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+
+    .fetch-log-item {
+        padding: 0.5em 1em;
+        border-bottom: 1px solid var(--soft-outline);
+        font-family: var(--monospace);
+        font-size: 0.85em;
+        line-height: 1.4;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        --log-bg: var(--bg);
+        --log-fg: var(--fg);
+        --log-fg2: var(--bg);
+
+        background: var(--log-bg);
+        color: var(--log-fg);
+
+        .log-time {
+            float: right;
+            font-size: 0.8em;
+            margin-left: 0.5em;
+            opacity: 0.7;
+            cursor: default;
+
+            &.is-real {
+                &::before {
+                    content: 'real ';
+                }
+            }
+        }
+
+        .log-type {
+            background: var(--log-fg);
+            color: var(--log-fg2);
+            border-radius: var(--iradius);
+            margin-right: 0.5em;
+            font-size: 0.8em;
+            padding: 0.2em 0.4em;
+        }
+
+        .log-fragments {
+            -webkit-user-select: text;
+            user-select: text;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+
+        &[data-type="debug"], &[data-type="trace"] {
+            --log-fg: var(--fg-fade-50);
+        }
+        &[data-type="log"], &[data-type="info"] {
+        }
+        &[data-type="warn"] {
+            --log-bg: var(--warning-bg);
+            --log-fg: var(--warning-fg);
+        }
+        &[data-type="error"] {
+            --log-bg: var(--error-bg);
+            --log-fg: var(--error);
+        }
+        &[data-type="stdout"] {
+            --log-bg: #000;
+            --log-fg: #fff;
+            --log-fg2: #000;
+        }
+        &[data-type="stderr"] {
+            --log-bg: #000;
+            --log-fg: var(--error);
+        }
+
+        .frag-null, .frag-undefined {
+            opacity: 0.7;
+        }
+        .frag-object-start, .frag-object-end, .frag-array-start, .frag-array-end,
+        .frag-object-maps-to, .frag-list-sep, .frag-truncated {
+            opacity: 0.6;
+        }
+        .frag-string {
+            color: #4ebc6b;
+        }
+        .frag-bool, .frag-number {
+            color: #ed9b50;
+        }
+        .frag-circular, .frag-function {
+            color: #1883ff;
+        }
+    }
+}

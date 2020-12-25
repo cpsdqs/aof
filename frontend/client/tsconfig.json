@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2019", "DOM", "WebWorker"],
+    "target": "ES2019",
+    "strict": true,
+    "module": "ES2020",
+    "jsx": "react",
+    "jsxFactory": "h",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "preserveSymlinks": true
+  },
+  "include": ["src/**/*.tsx", "src/**/*.ts"]
+}

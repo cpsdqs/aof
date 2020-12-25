@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+    <head data-base="{{BASE}}">
+        <meta charset="utf-8" />
+        <title>AOF</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+        <link rel="stylesheet" href="{{BASE}}static/dist/index.css" />
+        <script async src="{{BASE}}static/dist/index.js"></script>
+    </head>
+    <body>
+        <header class="page-header">
+            <a class="header-icon" href="{{BASE}}">
+                <img aria-hidden="true" alt="" src="{{BASE}}static/icon.svg" draggable="false" />
+                <h1 class="header-title">AOF</h1>
+            </a>
+            <div id="login-state">
+                <a href="{{BASE}}web">Open</a>
+            </div>
+        </header>
+        <main class="page-container">
+            {{CONTENTS}}
+        </main>
+        <footer class="page-footer">
+            <div class="footer-note">
+                Powered by String::replace™
+            </div>
+            <div class="footer-links">
+                <ul>
+                    <li>
+                        <a href="{{BASE}}contact">Contact</a>
+                    </li>
+                    <li>
+                        <a href="{{BASE}}docs/">Documentation</a>
+                    </li>
+                    <li>
+                        <a href="{{BASE}}terms">Terms of Service</a>
+                    </li>
+                    <li>
+                        <a href="{{BASE}}privacy">Privacy Policy</a>
+                    </li>
+                </ul>
+            </div>
+        </footer>
+    </body>
+</html>

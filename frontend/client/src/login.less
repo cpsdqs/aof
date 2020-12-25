@@ -1,0 +1,60 @@
+.app-login {
+    position: relative;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .app-login-dialog {
+        background: var(--card-bg);
+        border-radius: var(--radius);
+        padding: 1em;
+        box-shadow: 0 1em 2em rgba(0, 0, 0, 0.3);
+
+        .login-title {
+            text-align: center;
+            margin-bottom: 1em;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .login-field {
+            margin-bottom: 1em;
+
+            .login-field-label {
+                font-size: 0.9em;
+                margin-bottom: 0.2em;
+                font-weight: 600;
+                text-transform: uppercase;
+                display: block;
+            }
+        }
+
+        .login-persist {
+            .persist-checkbox {
+                margin: 0;
+            }
+            .login-field-label {
+                display: inline-block;
+                margin-left: 0.5em;
+            }
+        }
+
+        .login-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+    }
+
+    .login-etc {
+        position: absolute;
+        left: 0;
+        left: env(safe-area-inset-left);
+        bottom: 0;
+        bottom: env(safe-area-inset-bottom);
+        right: 0;
+        right: env(safe-area-inset-right);
+        padding: 1em;
+    }
+}

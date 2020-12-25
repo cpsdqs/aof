@@ -1,0 +1,46 @@
+[workspace]
+
+[package]
+name = "aof"
+version = "0.1.0"
+authors = ["cpsdqs <cpsdqs@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+toml = "0.5"
+clap = "2.33"
+lazy_static = "1.4"
+fern = { version = "0.6", features = ["colored"] }
+diesel = { version = "1.4", features = ["sqlite", "r2d2"] }
+base64 = "0.13"
+actix = "0.10"
+actix-rt = "1.1"
+actix-web = { version = "3.1", features = ["secure-cookies"] }
+actix-web-actors = "3.0"
+awc = { version = "2.0", features = ["openssl"] }
+actix-files = "0.4"
+log = "0.4"
+chrono = "0.4"
+serde = "1.0"
+serde_json = "1.0"
+thiserror = "1.0"
+unicode-normalization = "0.1"
+async-std = "1.6"
+rand = "0.7"
+futures = "0.3"
+byteorder = "1.3"
+rmp = "0.8"
+rmp-serde = "0.14"
+time = "0.2"
+unicode-segmentation = "1.7"
+tokio = { version = "0.3", features = ["rt", "rt-multi-thread", "sync"] }
+aof-script = { path = "aof-script" }
+ipc-channel = "0.14"
+libflate = "1.0"
+rustyline = "7.0"
+aes-gcm = "0.8"
+pbkdf2 = "0.6"
+hmac = "0.10"
+sha2 = "0.9"
+subtle = "2.3"
+hex = "0.4"

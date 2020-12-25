@@ -1,0 +1,207 @@
+id: 'de-DE'
+data:
+    socket:
+        unexp_eof: 'Unerwartetes Ende der Übertragung'
+        open_failed: 'Verbindungsfehler'
+        open_failed_reason: 'Verbindungsfehler: {0}'
+        abrupt_close: 'Verbindung getrennt'
+        req_not_open: 'Anfrage kann nicht durchgeführt werden, da keine Verbindung besteht'
+        unexp_nb: 'Unerwartete nicht-binäre Nachricht'
+        resp_size: 'Antwortgröße {0} ist größer als erlaubte Grenze von {1} Bytes'
+        resp_failure: 'Interner Serverfehler'
+        unexp_msg_type: 'Unerwarteter Nachrichtentyp {0}'
+        exists_not_open: 'Unerwarteter Zustand: Verbindung existiert, ist aber nicht verbunden'
+        close_null: 'Keine Verbindung zum trennen da'
+        protocol_error: 'Protokollfehler'
+    login:
+        invalid: 'Ungültiger Benutzername oder ungültiges Passwort'
+        logged_in: 'Bereits angemeldet'
+        no_session: 'Bereits abgemeldet'
+        cfg:
+            name_taken: 'Name ist schon vergeben'
+            invalid_name: 'Ungültiger name'
+            invalid: 'Falsches Passwort'
+            internal_error: 'Interner Serverfehler'
+    domains:
+        not_found: 'Domäne nicht gefunden'
+        forbidden: 'Du darft diese Domäne nicht verändern'
+        abbrev_too_short: 'Abkürzung ist zu kurz'
+        abbrev_too_long: 'Abkürzung ist zu lang'
+        name_too_short: 'Name ist zu kurz'
+        name_too_long: 'Name ist zu lang'
+        description_too_long: 'Beschreibung ist zu lang'
+        script_too_long: 'Skript ist zu lang'
+        already_subscribed: 'Du hast diese Domäne bereits deiner Liste hinzugefügt'
+        not_subscribed: 'Diese Domäne ist nicht in deiner Liste'
+        is_owner: 'Du bist Besitzer dieser Domäne, und sie ist somit immer in deiner Liste'
+    sources:
+        insufficient_tokens: 'Du kast keine Tokens übrig'
+        invalid_uri: 'Ungültige URI'
+        already_subscribed: 'Du hast diese Quelle bereits abonniert'
+        not_subscribed: 'Du hast diese Quelle nicht abonniert'
+    crypto:
+        no_secret_key: 'Geheimschlüssel wurde noch nicht entschlüsselt'
+        secret_key_length: 'Geheimschlüssel hat falsche Länge'
+        nonce_length: 'Nonce hat falsche Länge'
+        decryption: 'Fehler beim Entschlüsseln'
+        encryption: 'Failed beim Verschlüsseln'
+connection:
+    state:
+        opening: 'Verbinden'
+        open: 'Verbunden'
+        closing: 'Verbindung wird getrennt'
+        closed: 'Nicht verbunden'
+    action:
+        open: 'Verbinden'
+        close: 'Verbindung trennen'
+login:
+    title: 'Anmelden'
+    cancel: 'Abbrechen'
+    name: 'Benutzername'
+    password: 'Passwort'
+    persist: 'Angemeldet bleiben'
+    login: 'Anmelden'
+    logout: 'Abmelden'
+    decrypt:
+        manual_decrypt: 'Entschlüsseln'
+        title: 'Entschlüsselung'
+        description: 'Um deinen Geheimschlüssel zu entschlüsseln ist ein Passwort nötig.'
+        bad_password: 'Ungültiges Passwort'
+        password_label: 'Passwort'
+        persistence:
+            label: 'Passwort speichern'
+            only_session: 'nur für diese Sitzung'
+        cancel: 'Abbrechen'
+        confirm: 'Entschlüsseln'
+        errors:
+            no_client_key: 'Fehler beim Laden des Speicherschlüssels'
+            no_secret_key: 'Fehler beim Laden des Geheimschlüssels'
+            no_password: 'Fehler beim Laden des Passworts'
+            salt_read_error: 'Geheimschlüssel ist korrupt'
+            ct_read_error: 'Geheimschlüssel ist korrupt'
+            decryption: 'Ungültiges Passwort'
+            canceled: 'Entschlüsselung abgebrochen'
+            no_decrypted_key: 'Fehler beim Speichern: keine entschlüsselte Daten (?)'
+            encryption: 'Fehler beim Speichern: Entschlüsselung fehlgeschlagen'
+            encoding: 'Fehler beim Speichern: Kodierung fehlgeschlagen'
+error:
+    generic: 'Fehler'
+    crash:
+        title: 'App-Fehler'
+        reload: 'Neu Laden'
+header:
+    reload: 'Neu Laden'
+    exit: 'Schließen'
+    routes:
+        settings: 'EINSTELLUNGEN'
+        sources: 'QUELLEN'
+        source: 'QUELLE [{0}]'
+        source_item: 'ARTIKEL'
+        domains: 'DOMÄNEN'
+        domain: 'DOMÄNE [{0}]'
+search:
+    placeholder: 'Suchen'
+domains:
+    list:
+        empty_user: 'Du hast keine Domänen'
+        empty_public: 'Es gibt keine öffentlichen Domänen'
+    fields:
+        editable_description: 'Du kannst diese Domäne bearbeiten'
+        public_description: 'Diese Domäne ist in der öffentlichen Liste sichtbar'
+time:
+    reltime:
+        prefix_fut: 'in '
+        suffix_fut: ''
+        prefix_past: 'vor '
+        suffix_past: ''
+        just_now: 'gerade eben'
+        today: 'heute'
+        yesterday: 'gestern'
+        tomorrow: 'morgen'
+        unknown: 'unbekannt'
+        units:
+            years: 'j'
+            days: 't'
+            hours: 'h'
+            minutes: 'm'
+            seconds: 's'
+sources:
+    list:
+        empty_user: 'Du hast keine Quellen'
+        filters:
+            read:
+                unread: 'Ungelesen'
+                read: 'Gelesen'
+    fetch:
+        never: 'nie'
+        unspecified_error: 'Fehler beim Laden'
+        log:
+            show: 'Details'
+            title: 'Fetch Log'
+    details:
+        open_canonical: 'Öffnen'
+    items:
+        title: 'Artikel'
+        no_data: 'Keine Daten'
+        mark_read: 'Gelesen'
+        mark_unread: 'Ungelesen'
+pages:
+    settings:
+        title: 'Einstellungen'
+        device: 'Gerätespezifische Einstellungen'
+        account: 'Kontoeinstellungen'
+        locale: 'Sprache'
+        dev_mode: 'Entwicklermodus'
+        view_data: 'Nutzerdaten einsehen'
+        change_name: 'Benutzernamen ändern'
+        change_password: 'Passwort ändern'
+        change_sk_password: 'Geheimschlüsselpasswort ändern'
+        delete_account: 'Konto löschen'
+        fields:
+            name: 'Benutzername'
+            password: 'Neues Passwort'
+            confirm_password: 'Passwort bestätigen'
+            sk_password: 'Neues Geheimschlüsselpasswort'
+            confirm_sk_password: 'Passwort bestätigen'
+            old_password: 'Jetziges Passwort'
+            password_mismatch: 'Passwörter stimmen nicht überein'
+            delete_password: 'Passwort'
+            change_password_desc: 'Hinweis: das Passwort deines Geheimschlüssels wird hiermit nicht geändert.'
+            delete_account_desc: 'Bist du dir sicher, dass du dein Konto löschen willst? Dieser Vorgang kann nicht rückgängig gemacht werden.'
+        buttons:
+            cancel: 'Abbrechen'
+            change_name: 'Ändern'
+            change_password: 'Ändern'
+            delete_account: 'Löschen'
+    sources:
+        title: 'Quellen'
+    source:
+        subscribe: 'Abonnieren'
+        unsubscribe: 'Entfernen'
+    domains:
+        title: 'Domänen'
+        tabs:
+            user: 'Deine Liste'
+            public: 'Öffentlich'
+    domain:
+        subscribe: 'Zur Liste Hinzufügen'
+        unsubscribe: 'Von Liste Entfernen'
+        edit: 'Bearbeiten'
+        edit_discard: 'Abbrechen'
+        edit_save: 'Speichern'
+        fields:
+            abbrev: 'Abkürzung'
+            name: 'Name'
+            description: 'Beschreibung'
+            is_public: 'Öffentlich'
+            is_public_desc: 'Diese Domäne wird in der öffentlichen Liste sichtbar sein.'
+            script: 'Skript'
+        create:
+            title: 'Neue Domäne'
+            cancel: 'Abbrechen'
+            confirm: 'Erstellen'
+        delete:
+            title: 'Löschen'
+            description: 'Bist du sicher, dass du diese Domäne löschen willst?'
+            cancel: 'Abbrechen'
+            confirm: 'Löschen'

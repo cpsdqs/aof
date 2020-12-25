@@ -1,0 +1,36 @@
+@import './prelude';
+
+.switch {
+    display: inline-flex;
+    position: relative;
+    box-sizing: border-box;
+    border-radius: 100em;
+    border: 1px solid var(--soft-outline);
+    white-space: nowrap;
+
+    --switch-bg: var(--bg);
+    --switch-fg: var(--fg);
+    --switch-selected-bg: var(--accent);
+    --switch-selected-fg: var(--accent-fg);
+
+    background: var(--switch-bg);
+    cursor: default;
+
+    .switch-item {
+        display: inline-block;
+        padding: 0.2em 0.8em;
+        border-radius: inherit;
+        color: var(--switch-fg);
+
+        transition: background 0.2s var(--easing), color 0.2s var(--easing);
+
+        &.is-selected {
+            background: var(--switch-selected-bg);
+            color: var(--switch-selected-fg);
+        }
+
+        &:not(:first-child) {
+            margin-left: -0.4em;
+        }
+    }
+}

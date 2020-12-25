@@ -1,0 +1,11 @@
+[package]
+name = "deno-dom-core"
+version = "0.1.0"
+authors = ["cpsdqs <cpsdqs@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+html5ever = "0.25.1"
+markup5ever = "0.10.0"
+serde_json = "1.0"
+serde = "1.0.111"

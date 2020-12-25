@@ -1,0 +1,116 @@
+@import './prelude';
+
+.popout-anchor {
+    display: none;
+}
+
+.popout-satellite {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    pointer-events: none;
+    z-index: 1000;
+    --popout-bg: var(--card-bg);
+    --popout-outline: var(--soft-outline);
+
+    .popout-pointer {
+        position: absolute;
+        background: var(--popout-bg);
+        border: 1px solid var(--popout-outline);
+        border-top-left-radius: var(--iradius);
+        border-right-color: transparent;
+        border-bottom-color: transparent;
+        transform-origin: 0 0;
+        width: 1em;
+        height: 1em;
+        z-index: 1;
+    }
+
+    .popout-container {
+        position: absolute;
+        max-width: 100vw;
+        background: var(--popout-bg);
+        border-radius: var(--radius);
+        border: 1px solid var(--popout-outline);
+        pointer-events: all;
+
+        .popout-contents {
+            flex: 1;
+            display: flex;
+
+            .popout-close {
+                display: none;
+                border: none;
+                background: none;
+                margin: 0;
+                padding: 0.5em 1em;
+                font: inherit;
+                color: inherit;
+                line-height: 0;
+                transition: opacity 0.3s @easing;
+
+                .popout-close-icon {
+                    display: inline-block;
+                    position: relative;
+                    width: 1em;
+                    height: 1em;
+                    --hw: 0.07em;
+
+                    &::before, &::after {
+                        position: absolute;
+                        content: '';
+                        width: 1em;
+                        height: calc(var(--hw) * 2);
+                        border-radius: var(--hw);
+                        top: 50%;
+                        left: 50%;
+                        background: currentColor;
+                    }
+                    &::before {
+                        transform: translate(-50%, -50%) rotate(45deg);
+                    }
+                    &::after {
+                        transform: translate(-50%, -50%) rotate(-45deg);
+                    }
+                }
+
+                &:active {
+                    opacity: 0.5;
+                    transition: opacity 0.05s @easing;
+                }
+            }
+            .popout-text {
+                position: relative;
+                z-index: 1;
+                padding: 0.5em 1em;
+                //padding-left: 0;
+
+                &:empty {
+                    display: none;
+                }
+            }
+
+            .popout-text:not(:empty) + .popout-action {
+                border-left: 1px solid var(--soft-outline);
+            }
+
+            .popout-action {
+                .popout-action-button {
+                    background: none;
+                    border: none;
+                    padding: 0.5em 1em;
+                    margin: 0;
+                    font: inherit;
+                    color: var(--accent);
+                    transition: opacity 0.3s var(--easing);
+
+                    &:active {
+                        opacity: 0.5;
+                        transition: opacity 0.05s var(--easing);
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,16 @@
+.page-stack {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+
+    .page-stack-column {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+        overscroll-behavior: contain;
+    }
+}
