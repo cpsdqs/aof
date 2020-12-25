@@ -8,6 +8,8 @@ without making use of standard formats. It also includes a web interface.
 - It does not support cumulative streams such as RSS
 - The only way to access data in a machine-readable format is via a non-standard API
 - The scripting API is quite flaky
+- There will be a lot of errors like `[ERROR r2d2] database is locked` and I’m not sure why
+  (the server seems to be working fine?)
 
 ### Conceptual Overview
 - Data is organized into domains, sources, and source items.
@@ -29,10 +31,13 @@ Note that this server expects a reverse proxy and will always take following hea
 - `X-Forwarded-For`
 - `X-Forwarded-Host`
 
-#### Database Setup
-todo
-
-Create an account by running the binary with `--create-token` and then signing up via the web interface.
+#### Setup
+1. Extract `build.tar.gz` to find `aof` and `static/`
+1. Create a configuration file using `./aof generate-config`
+1. Edit the configuration file if necessary
+1. Create a registration token using `./aof --create-token`. This will also create the database.
+1. Run `./aof` to start the server
+1. Sign up via the web interface
 
 #### Content Security Policy
 Required items:
@@ -43,6 +48,7 @@ Required items:
 - `script-src`
     - `'self'`
     - `'unsafe-eval'` for WebAssembly
+    - Do NOT allow `'unsafe-inline'`
 - `img-src`
     - `'self'`
     - `data:` for ace editor

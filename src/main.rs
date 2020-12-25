@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate diesel;
 #[macro_use]
+extern crate diesel_migrations;
+#[macro_use]
 extern crate log;
 
 mod auto_fetcher;
@@ -39,18 +41,15 @@ async fn main() -> std::io::Result<()> {
                 .help("Enables logging debug messages"),
         )
         .arg(
-            clap::Arg::with_name("create_token")
-                .long("create-token")
-                .help("Create a new registration token"),
+            clap::Arg::with_name("fetcher-ipc-fork")
+                .long("fetcher-ipc-fork")
+                .hidden(true)
+                .help("Internal command, please ignore")
+                .takes_value(true)
         )
         .subcommand(
-            clap::SubCommand::with_name("fetcher-ipc-fork")
-                .about("Internal command, please ignore")
-                .arg(
-                    clap::Arg::with_name("server_name")
-                        .takes_value(true)
-                        .required(true),
-                ),
+            clap::SubCommand::with_name("create-token")
+                .about("Create a new registration token")
         )
         .subcommand(
             clap::SubCommand::with_name("generate-config")
@@ -60,6 +59,7 @@ async fn main() -> std::io::Result<()> {
                         .value_name("FILE")
                         .help("Config file destination")
                         .takes_value(true)
+                        .default_value("aof.toml")
                         .required(true),
                 ),
         )
@@ -95,10 +95,11 @@ async fn main() -> std::io::Result<()> {
         ("generate-config", Some(sc)) => {
             generate_config(sc.value_of("file").unwrap());
         }
-        ("fetcher-ipc-fork", Some(sc)) => {
-            run_fetcher_ipc_fork(sc.value_of("server_name").unwrap());
-        }
         _ => (),
+    }
+
+    if let Some(server_name) = matches.value_of("fetcher-ipc-fork") {
+        run_fetcher_ipc_fork(server_name);
     }
 
     {
@@ -117,10 +118,20 @@ async fn main() -> std::io::Result<()> {
 
     let db_url = Config::shared().database.clone();
     let pool = State::create_pool(&db_url);
+
+    embed_migrations!();
+    debug!("Running migrations");
+    embedded_migrations::run(&pool.get().expect("Failed to open DB connection to run migrations"))
+        .expect("Failed to run migrations");
+    debug!("Migrations done");
+
     let state = web::Data::new(State::new(pool));
 
-    if matches.is_present("create_token") {
-        create_registration_token(&state);
+    match matches.subcommand() {
+        ("create-token", Some(sc)) => {
+            create_registration_token(&state);
+        }
+        _ => (),
     }
 
     let bind_addr = Config::shared().bind_addr.clone();

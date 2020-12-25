@@ -321,7 +321,7 @@ pub fn run_request(request: Fetch, messages: &mut Vec<FetchMsg>) -> Result<Value
             ScriptError::Fatal("failed to fork: could not find current executable".into())
         })?;
         Command::new(bin_path)
-            .args(&["fetcher-ipc-fork", &ipc_server_name])
+            .args(&["--fetcher-ipc-fork", &ipc_server_name])
             .stdin(Stdio::null())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())

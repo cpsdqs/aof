@@ -12,7 +12,7 @@ import get from './locale';
 export default class Session extends PureComponent<Session.Props, Session.State> {
     state = {
         route: [],
-        error: null as any,
+        error: null,
     };
 
     currentHash = '';
@@ -26,7 +26,6 @@ export default class Session extends PureComponent<Session.Props, Session.State>
     }
 
     componentDidCatch(error: any) {
-        // @ts-ignore
         this.setState({ error });
         console.error(error);
     }
@@ -93,5 +92,6 @@ namespace Session {
     export interface Props {}
     export interface State {
         route: Route,
+        error: any,
     }
 }

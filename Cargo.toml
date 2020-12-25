@@ -12,6 +12,7 @@ clap = "2.33"
 lazy_static = "1.4"
 fern = { version = "0.6", features = ["colored"] }
 diesel = { version = "1.4", features = ["sqlite", "r2d2"] }
+diesel_migrations = "1.4"
 base64 = "0.13"
 actix = "0.10"
 actix-rt = "1.1"

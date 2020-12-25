@@ -34,6 +34,9 @@ where
     }
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Result<Bytes, Error>>> {
+        // SAFETY: PIN PROJECTION
+        // this is safe because if self is pinned then so is ClientResponse
+        // (...I hope)
         let inner = unsafe { Pin::new_unchecked(&mut self.get_unchecked_mut().0) };
         inner
             .poll_next(cx)
