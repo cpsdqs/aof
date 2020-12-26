@@ -173,7 +173,7 @@ function DomainEditor({ edit, onChange }: { edit: any, onChange: (e: any) => voi
             </FormItem>
             <FormItem stack label={get('pages.domain.fields.description')}>
                 <textarea
-                    style={{ width: '100%', minHeight: '9em', resize: 'vertical' }}
+                    class="description-text-area"
                     value={edit.description || ''}
                     onChange={e => {
                         // @ts-ignore

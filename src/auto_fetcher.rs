@@ -289,7 +289,7 @@ fn get_item_up(state: &SharedData, source: &str) -> Result<UpdateProjection, Dat
                 let weight = 65536. * (1. - elapsed.num_seconds() as f64 / 86400. / 7.);
                 UpdateProjection::Day(weight_conv(weight))
             } else {
-                let weight = 65536. * (1. - (elapsed.num_seconds() as f64 / 86400. / 7.).ln() / 5.);
+                let weight = 65536. * (1. - (elapsed.num_seconds() as f64 / 86400. / 7.) / 100.);
                 UpdateProjection::Week(weight_conv(weight))
             }
         }
@@ -303,7 +303,7 @@ fn get_item_up(state: &SharedData, source: &str) -> Result<UpdateProjection, Dat
                 let weight = 65536. * (1. - elapsed.num_days() as f64 / 7.);
                 UpdateProjection::Day(weight_conv(weight))
             } else {
-                let weight = 65536. * (1. - (elapsed.num_days() as f64 / 7.).ln() / 5.);
+                let weight = 65536. * (1. - (elapsed.num_days() as f64 / 7.) / 100.);
                 UpdateProjection::Week(weight_conv(weight))
             }
         }

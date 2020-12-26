@@ -68,6 +68,7 @@ export default {
     output: {
         dir: '../../static/client/',
         format: 'amd',
+        chunkFileNames: '[name]-[hash].js',
     },
 };
 

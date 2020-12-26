@@ -5,10 +5,15 @@
     margin: 1em;
     overflow: hidden;
 
+    @title-height: 1.4em;
+    @top-details-space: 0.3em;
+    @top-details-height: 1.4em;
+
     .source-title {
         display: flex;
         justify-content: space-between;
         white-space: nowrap;
+        height: @title-height;
 
         .title-inner {
             overflow: hidden;
@@ -26,8 +31,9 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 0.3em;
+        margin-top: @top-details-space;
         white-space: nowrap;
+        height: @top-details-height;
 
         .detail-group-placeholder {
             &::before {
@@ -115,6 +121,12 @@
 
         .source-top-details .source-fetch .task-button {
             --task-button-fg: var(--fg-fade-50);
+        }
+    }
+
+    &.is-placeholder {
+        .inner-placeholder {
+            height: @title-height + @top-details-space + @top-details-height;
         }
     }
 }

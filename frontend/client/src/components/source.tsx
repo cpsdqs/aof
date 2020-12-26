@@ -64,6 +64,15 @@ export default class Source extends PureComponent<Source.Props> {
                 if (allRead) className += ' is-all-read';
             }
 
+            if (this.props.visibilityCheck && !this.state.visible) {
+                // because sources have a fixed height, we can render a simple placeholder here
+                return (
+                    <div ref={this.node} class={className + ' is-placeholder'}>
+                        <div class="inner-placeholder" />
+                    </div>
+                );
+            }
+
             return (
                 <div ref={this.node} class={className} onClick={this.onClick}>
                     <SourceTitle
