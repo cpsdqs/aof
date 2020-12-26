@@ -1,8 +1,12 @@
 import { h } from 'preact';
-import { PureComponent } from 'preact/compat';
+import { Fragment, PureComponent } from 'preact/compat';
 import { Progress } from 'uikit';
 import { PageProps } from '../../../../router';
-import { SourceItemContents, SourceItemHeader } from '../../../../components/source-item';
+import {
+    SourceItemContents,
+    SourceItemHeader,
+    SourceItemNext
+} from '../../../../components/source-item';
 import { connectf, join, parseUri, SOURCE } from '../../../../data';
 import './index.less';
 
@@ -28,10 +32,15 @@ export default class SourceItemPage extends PureComponent<PageProps> {
                         }
                     }
                 }
-                return <SourceItemContents uri={uri} referrer={referrer} />
+                return (
+                    <Fragment>
+                        <SourceItemContents uri={uri} referrer={referrer} />
+                        <SourceItemNext source={sourceUri} uri={uri} />
+                    </Fragment>
+                );
             }
             return <Progress block />;
-        });
+        }, { keepCached: true });
 
         return (
             <div class="source-item-page">

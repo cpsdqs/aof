@@ -2,7 +2,6 @@
 locales:
     en: 'English'
     de: 'Deutsch'
-    '😀': '😀'
 ##
 # this ID should be a locale string that is accepted by Javascript
 id: 'en-US'
@@ -151,6 +150,7 @@ sources:
         title: 'Items'
         no_data: 'No data'
         mark_read: 'Mark read'
+        finished: 'Finished'
         mark_unread: 'Mark unread'
         mark_all_read: 'Mark all as read'
         mark_all_unread: 'Mark all as unread'

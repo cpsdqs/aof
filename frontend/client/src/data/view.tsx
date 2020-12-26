@@ -8,6 +8,8 @@ import { Key, FnLoad, FnR, Load, FnA } from './paths';
 // TODO: refresh views when socket reconnects
 export class View<T> extends EventEmitter {
     private readonly key: Key<T>;
+    keepCached = false;
+    cached: T | null = null;
 
     constructor(key: Key<T>) {
         super();
@@ -30,10 +32,16 @@ export class View<T> extends EventEmitter {
     }
 
     get loaded() {
+        if (this.keepCached && this.cached) return true;
         return cache.has(this.key);
     }
 
     get() {
+        if (this.keepCached) {
+            if (!cache.has(this.key)) return this.cached;
+            this.cached = cache.get(this.key);
+        }
+
         return cache.get(this.key);
     }
 
@@ -70,7 +78,11 @@ export class View<T> extends EventEmitter {
 type ConnectFn<T> = (v: View<T>) => VNode | null;
 
 type IOptions = {
+    // if false, will not load data
     shouldLoad?: boolean,
+    // if true, will temporarily keep the cached data if cache is cleared
+    keepCached?: boolean,
+    // jsx key
     key?: string,
 };
 
@@ -101,6 +113,7 @@ export class Connection<T> extends PureComponent<Connection.Props<T>> {
         this.view.on('ping', this.onPing);
         this.view.on('update', this.viewDidUpdate);
         this.view.on('error', this.viewDidUpdate);
+        this.view.keepCached = this.props.opts?.keepCached || false;
         this.forceUpdate();
     }
     viewDidUpdate = () => {

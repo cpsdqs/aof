@@ -1,11 +1,11 @@
-import { h } from 'preact';
+import { h, Component } from 'preact';
 import { createRef, useRef, Fragment, PureComponent } from 'preact/compat';
 import { Progress, TaskButton } from 'uikit';
 import {
     api,
     connectf,
     Connection,
-    IFetchState,
+    IFetchState, ISourceMetaItem,
     join,
     load,
     parseUri,
@@ -20,7 +20,7 @@ import {
     SourceUserData,
 } from '../data';
 import get from '../locale';
-import { DownloadedIcon, DownloadIcon, NoDataIcon, OpenExternalIcon } from './icons';
+import { CheckIcon, DownloadedIcon, DownloadIcon, NoDataIcon, OpenExternalIcon } from './icons';
 import './source-item.less';
 import ErrorDisplay from './error-display';
 import FetchLogDialog from './fetch-log-dialog';
@@ -83,8 +83,8 @@ export function SourceItemHeader({ source, uri }: { source: string, uri: string 
 
 const DEFAULT_SHADOW_STYLES = `
 /* default styles */
-h1, h2, h3, h4, h5, h6 {
-    text-align: left;
+p {
+    text-align: justify;
 }
 img {
     max-width: 100%;
@@ -185,12 +185,16 @@ class HtmlContainer extends PureComponent<HtmlContainer.Props> {
                 if (attr.startsWith('on')) image.removeAttribute(attr);
             }
             if (image.hasAttribute('width') && image.hasAttribute('height')) {
-                image.dataset.aofWidth = image.getAttribute('width')!;
-                image.dataset.aofHeight = image.getAttribute('height')!;
-                image.removeAttribute('width');
-                image.removeAttribute('height');
+                const width = image.getAttribute('width')!;
+                const height = image.getAttribute('height')!;
+                if (+width > 0 && +height > 0) {
+                    image.dataset.aofWidth = image.getAttribute('width')!;
+                    image.dataset.aofHeight = image.getAttribute('height')!;
+                    image.removeAttribute('width');
+                    image.removeAttribute('height');
 
-                this.aspectImages.push(image);
+                    this.aspectImages.push(image);
+                }
             }
 
             try {
@@ -230,7 +234,23 @@ class HtmlContainer extends PureComponent<HtmlContainer.Props> {
 
     onResize = () => {
         for (const image of this.aspectImages) {
-            const containerWidth = (image.parentNode! as HTMLElement).offsetWidth;
+            // find closest parent with block layout
+            let container = image.parentNode;
+            for (let i = 0; i < 255; i++) {
+                if (!(container instanceof HTMLElement)) break;
+                const display = getComputedStyle(container!).display;
+                if (['block', 'flex', 'table', 'table-cell'].includes(display)) {
+                    break;
+                }
+                container = container.parentNode;
+            }
+            let containerWidth;
+            if (container instanceof HTMLElement) {
+                containerWidth = container.offsetWidth;
+            } else {
+                // probably the shadow root node
+                containerWidth = this.node.current!.offsetWidth;
+            }
             const suggestedWidth = +image.dataset.aofWidth!;
             const suggestedHeight = +image.dataset.aofHeight!;
 
@@ -410,4 +430,69 @@ export function SourceItemFetch({ uri }: { uri: string }) {
                 }} />
         );
     });
+}
+
+export function SourceItemNext(this: Component, { source, uri }: { source: string, uri: string }) {
+    const itemPath = '/' + parseUri(uri).slice(1).join('/');
+
+    return connectf(join(SOURCE, parseUri(source)), view => connectf(join(SOURCE_USER_DATA, parseUri(source)), userDataView => {
+        if (view.get()?.loaded) {
+            let nextItem: ISourceMetaItem | null = null;
+            let didFindItem = false;
+
+            for (const item of view.get()!.data.items) {
+                if (didFindItem) {
+                    nextItem = item;
+                    break;
+                }
+                if (item.path === itemPath) {
+                    didFindItem = true;
+                }
+            }
+
+            if (didFindItem) {
+                const userData = new SourceUserData(userDataView.get());
+                let readState = userData.itemReadState(itemPath);
+
+                const markRead = async () => {
+                    // assume it would've been loaded by now
+                    // FIXME: this modifies local state BEFORE committing!!
+                    readState.read = true;
+                    await load(SOURCE_SET_USER_DATA, { uri: source, data: userData.data });
+                };
+
+                let contents;
+                if (nextItem) {
+                    const openNextItem = async () => {
+                        await markRead();
+                        const sourcePath = parseUri(source).join('/');
+                        this.context.navigate(`sources/${sourcePath}:item${nextItem!.path}`);
+                    };
+
+                    contents = (
+                        <TaskButton run={openNextItem} class="next-item-button">
+                            <span class="inner-arrow" />
+                        </TaskButton>
+                    );
+                } else {
+                    const isRead = readState.read;
+                    contents = (
+                        <TaskButton run={markRead} class={'finished-button' + (isRead ? ' is-finished' : '')}>
+                            {isRead && (
+                                <CheckIcon class="inner-icon" />
+                            )}
+                            <span class="inner-label">{get('sources.items.finished')}</span>
+                        </TaskButton>
+                    );
+                }
+
+                return (
+                    <div class="source-item-next">
+                        {contents}
+                    </div>
+                );
+            }
+        }
+        return null;
+    }));
 }

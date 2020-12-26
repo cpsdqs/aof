@@ -180,6 +180,8 @@ export async function loadSourceItem(path) {
     const viewerContents = doc.querySelector('.viewer__body');
     for (const img of viewerContents.querySelectorAll('.content__img')) {
         img.setAttribute('src', img.getAttribute('data-src'));
+        img.setAttribute('width', img.getAttribute('data-width'));
+        img.setAttribute('height', img.getAttribute('data-height'));
         img.removeAttribute('style');
     }
 

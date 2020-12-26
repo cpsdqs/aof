@@ -18,7 +18,7 @@ import OpenExternal from 'icon!open-external';
 // @ts-ignore
 import Download from 'icon!download';
 // @ts-ignore
-import Downloaded from 'icon!downloaded';
+import Check from 'icon!check';
 // @ts-ignore
 import Lock from 'icon!lock';
 // @ts-ignore
@@ -38,7 +38,8 @@ export const RefreshIcon = Refresh as Icon;
 export const AddIcon = Add as Icon;
 export const OpenExternalIcon = OpenExternal as Icon;
 export const DownloadIcon = Download as Icon;
-export const DownloadedIcon = Downloaded as Icon;
+export const CheckIcon = Check as Icon;
+export const DownloadedIcon = CheckIcon;
 export const LockIcon = Lock as Icon;
 export const LockUnlockedIcon = LockUnlocked as Icon;
 export const RssIcon = Rss as Icon;
