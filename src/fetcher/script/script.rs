@@ -5,10 +5,10 @@ use aof_script::{AofRequest, InnerScript, ScriptContext};
 use ipc_channel::ipc::{IpcOneShotServer, IpcReceiver, IpcSender};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::cell::RefCell;
 use std::io::Read;
 use std::net::{SocketAddr, ToSocketAddrs};
-use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::Mutex;
 use std::thread;
 use std::time::{Duration, Instant};
 use thiserror::Error;
@@ -76,18 +76,18 @@ impl FetchTimeMetrics {
 /// ScriptContext implementor.
 struct FetchContext {
     request: AofRequest,
-    sender: IpcSender<ScriptMsg>,
-    msg_sender: IpcSender<FetchMsg>,
-    time: RefCell<FetchTimeMetrics>,
+    sender: Mutex<IpcSender<ScriptMsg>>,
+    msg_sender: Mutex<IpcSender<FetchMsg>>,
+    time: Mutex<FetchTimeMetrics>,
 }
 
 impl FetchContext {
     fn new(request: AofRequest, send: IpcSender<ScriptMsg>, msg_send: IpcSender<FetchMsg>) -> Self {
         FetchContext {
             request,
-            sender: send,
-            msg_sender: msg_send,
-            time: RefCell::new(FetchTimeMetrics {
+            sender: Mutex::new(send),
+            msg_sender: Mutex::new(msg_send),
+            time: Mutex::new(FetchTimeMetrics {
                 start_time: Instant::now(),
                 fetch_time: Duration::from_secs(0),
                 current_fetch_start: None,
@@ -177,8 +177,10 @@ impl ScriptContext for FetchContext {
     fn request_permission(&self, _method: &reqwest::Method, url: &Url) -> Result<(), String> {
         request_fetch_permission(url, |addr| {
             self.msg_sender
+                .lock()
+                .unwrap()
                 .send(FetchMsg {
-                    time: Some(self.time.borrow().get_time()),
+                    time: Some(self.time.lock().unwrap().get_time()),
                     msg: ConsoleMessage {
                         msg_type: MessageType::Warn,
                         message: vec![MsgFrag::Log(format!(
@@ -192,26 +194,36 @@ impl ScriptContext for FetchContext {
     }
 
     fn fetch_did_start(&self) {
-        let mut time = self.time.borrow_mut();
+        let mut time = self.time.lock().unwrap();
         time.current_fetch_start = Some(Instant::now());
 
-        self.sender.send(ScriptMsg::PauseTimer).unwrap();
+        self.sender
+            .lock()
+            .unwrap()
+            .send(ScriptMsg::PauseTimer)
+            .unwrap();
     }
     fn fetch_did_end(&self) {
-        let mut time = self.time.borrow_mut();
+        let mut time = self.time.lock().unwrap();
         let start = time
             .current_fetch_start
             .take()
             .expect("fetch ended without starting");
         time.fetch_time += start.elapsed();
 
-        self.sender.send(ScriptMsg::ContinueTimer).unwrap();
+        self.sender
+            .lock()
+            .unwrap()
+            .send(ScriptMsg::ContinueTimer)
+            .unwrap();
     }
 
     fn on_console_message(&self, msg: ConsoleMessage) {
-        let time = self.time.borrow().get_time();
+        let time = self.time.lock().unwrap().get_time();
 
         self.msg_sender
+            .lock()
+            .unwrap()
             .send(FetchMsg {
                 time: Some(time),
                 msg,
@@ -225,6 +237,8 @@ impl ScriptContext for FetchContext {
 
     fn set_aof_response(&self, data: Value) {
         self.sender
+            .lock()
+            .unwrap()
             .send(ScriptMsg::Result(serde_json::to_string(&data).unwrap()))
             .unwrap();
     }
@@ -272,7 +286,7 @@ async fn run_inner_request(
         } => (AofRequest::SourceItem { path }, domain, script),
     };
 
-    let ctx = Rc::new(FetchContext::new(request, send, msg_send));
+    let ctx = Arc::new(FetchContext::new(request, send, msg_send));
     let mut script = InnerScript::create(ctx, &domain, &script)
         .map_err(|e| ScriptError::Exec(format!("{}", e)))?;
     script

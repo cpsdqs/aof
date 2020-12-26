@@ -35,7 +35,7 @@ Note that this server expects a reverse proxy and will always take following hea
 1. Extract `build.tar.gz` to find `aof` and `static/`
 1. Create a configuration file using `./aof generate-config`
 1. Edit the configuration file if necessary
-1. Create a registration token using `./aof --create-token`. This will also create the database.
+1. Create a registration token using `./aof create-token`. This will also create the database.
 1. Run `./aof` to start the server
 1. Sign up via the web interface
 

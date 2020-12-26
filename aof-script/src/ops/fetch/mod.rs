@@ -4,6 +4,7 @@ use deno_core::serde_json::{self, Value};
 use deno_core::url::{self, Url};
 use deno_core::{json_op_sync, JsRuntime, OpState, ZeroCopyBuf};
 use serde::{Deserialize, Serialize};
+use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 use std::time::{Duration, Instant};
 use thiserror::Error;
@@ -90,10 +91,29 @@ fn op_fetch(state: &mut OpState, args: Value, data: &mut [ZeroCopyBuf]) -> Resul
         .request_permission(&method, &url)
         .map_err(FetchError::Permission)?;
 
+    let method2 = method.clone();
+    let guard2 = Arc::clone(state.script_ctx_arc().map_err(|_| FetchError::NoResource)?);
+    let redirect_count = Mutex::new(0);
+
     let client = reqwest::Client::builder()
         .user_agent(USER_AGENT)
         .redirect(match redirect_policy {
-            RedirectPolicy::Follow => reqwest::redirect::Policy::limited(10),
+            RedirectPolicy::Follow => reqwest::redirect::Policy::custom(move |attempt| {
+                let url = attempt.url();
+                // FIXME: does the method stay the same upon redirect?
+                match guard2.request_permission(&method2, &url) {
+                    Ok(()) => {
+                        let mut redirect_count = redirect_count.lock().unwrap();
+                        *redirect_count += 1;
+                        if *redirect_count < 10 {
+                            attempt.follow()
+                        } else {
+                            attempt.stop()
+                        }
+                    }
+                    Err(err) => attempt.error(err),
+                }
+            }),
             RedirectPolicy::Manual => reqwest::redirect::Policy::none(),
             RedirectPolicy::Error => reqwest::redirect::Policy::custom(|attempt| {
                 attempt.error("redirect policy does not allow redirects")

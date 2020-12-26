@@ -8,6 +8,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::pin::Pin;
 use std::rc::Rc;
+use std::sync::Arc;
 use thiserror::Error;
 
 use crate::script_ctx::*;
@@ -25,7 +26,7 @@ pub struct ScriptRt {
 }
 
 impl ScriptRt {
-    pub fn new(ctx: Rc<dyn ScriptContext>, mod_loader: ModLoader) -> Result<Self, AnyError> {
+    pub fn new(ctx: Arc<dyn ScriptContext>, mod_loader: ModLoader) -> Result<Self, AnyError> {
         let create_params =
             v8::CreateParams::default().heap_limits(INITIAL_HEAP_SIZE, MAX_HEAP_SIZE);
 
@@ -40,7 +41,7 @@ impl ScriptRt {
             create_params: Some(create_params),
         });
 
-        crate::script_ctx::init_rt(&mut runtime, Rc::clone(&ctx));
+        crate::script_ctx::init_rt(&mut runtime, Arc::clone(&ctx));
         crate::ops::init(&mut runtime, ctx)?;
 
         Ok(ScriptRt { runtime })
@@ -66,7 +67,7 @@ pub struct InnerScript {
 
 impl InnerScript {
     pub fn create(
-        ctx: Rc<dyn ScriptContext>,
+        ctx: Arc<dyn ScriptContext>,
         domain: &str,
         script: &str,
     ) -> Result<Self, AnyError> {

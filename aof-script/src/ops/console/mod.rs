@@ -5,7 +5,7 @@ use deno_core::JsRuntime;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use std::fmt;
-use std::rc::Rc;
+use std::sync::Arc;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -15,11 +15,11 @@ enum InitErr {
 }
 
 struct ConsoleState {
-    ctx: Rc<dyn ScriptContext>,
+    ctx: Arc<dyn ScriptContext>,
 }
 
 pub fn init(
-    ctx: Rc<dyn ScriptContext>,
+    ctx: Arc<dyn ScriptContext>,
     global: v8::Local<v8::Object>,
     scope: &mut v8::HandleScope<v8::Context>,
 ) -> Result<(), AnyError> {

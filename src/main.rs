@@ -45,11 +45,10 @@ async fn main() -> std::io::Result<()> {
                 .long("fetcher-ipc-fork")
                 .hidden(true)
                 .help("Internal command, please ignore")
-                .takes_value(true)
+                .takes_value(true),
         )
         .subcommand(
-            clap::SubCommand::with_name("create-token")
-                .about("Create a new registration token")
+            clap::SubCommand::with_name("create-token").about("Create a new registration token"),
         )
         .subcommand(
             clap::SubCommand::with_name("generate-config")
@@ -121,8 +120,12 @@ async fn main() -> std::io::Result<()> {
 
     embed_migrations!();
     debug!("Running migrations");
-    embedded_migrations::run(&pool.get().expect("Failed to open DB connection to run migrations"))
-        .expect("Failed to run migrations");
+    embedded_migrations::run(
+        &pool
+            .get()
+            .expect("Failed to open DB connection to run migrations"),
+    )
+    .expect("Failed to run migrations");
     debug!("Migrations done");
 
     let state = web::Data::new(State::new(pool));

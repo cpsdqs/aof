@@ -1,7 +1,7 @@
 use crate::ScriptContext;
 use deno_core::error::AnyError;
 use deno_core::{v8, JsRuntime};
-use std::rc::Rc;
+use std::sync::Arc;
 
 mod aof_req;
 pub mod console;
@@ -9,14 +9,14 @@ mod fetch;
 
 pub use fetch::USER_AGENT;
 
-pub fn init(runtime: &mut JsRuntime, ctx: Rc<dyn ScriptContext>) -> Result<(), AnyError> {
+pub fn init(runtime: &mut JsRuntime, ctx: Arc<dyn ScriptContext>) -> Result<(), AnyError> {
     {
         let global_ctx = runtime.global_context();
         let s_ctx = global_ctx.get(runtime.v8_isolate());
         let global_ctx_2 = global_ctx.clone();
         let scope = &mut v8::HandleScope::with_context(runtime.v8_isolate(), global_ctx_2);
         let global = s_ctx.global(scope);
-        console::init(Rc::clone(&ctx), global, scope)?;
+        console::init(Arc::clone(&ctx), global, scope)?;
     }
 
     deno_web::init(runtime);

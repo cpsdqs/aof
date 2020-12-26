@@ -95,17 +95,16 @@ async fn camo(
                     for (k, v) in inner_res.headers() {
                         if k == "location" {
                             // fix Location header in redirects
-                            match url
-                                .join(v.to_str().unwrap_or(""))
-                                .map(|x| x.to_string())
-                            {
+                            match url.join(v.to_str().unwrap_or("")).map(|x| x.to_string()) {
                                 Ok(resolved) => {
                                     let mut resource_url = String::from(request.path());
 
                                     let mut dummy_url = Url::parse("https://example.com").unwrap();
                                     dummy_url.query_pairs_mut().append_pair("url", &resolved);
                                     if let Some(referrer) = &query.referrer {
-                                        dummy_url.query_pairs_mut().append_pair("referrer", referrer);
+                                        dummy_url
+                                            .query_pairs_mut()
+                                            .append_pair("referrer", referrer);
                                     }
                                     resource_url.push_str("?");
                                     resource_url.push_str(dummy_url.query().unwrap_or(""));

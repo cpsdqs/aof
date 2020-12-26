@@ -2,10 +2,10 @@ use crate::ops::console::ConsoleMessage;
 use deno_core::url::Url;
 use deno_core::{JsRuntime, OpState};
 use serde::Serialize;
-use std::rc::Rc;
+use std::sync::Arc;
 
 /// The execution context of a script.
-pub trait ScriptContext {
+pub trait ScriptContext: Send + Sync {
     /// Requests permission to access a URL.
     fn request_permission(&self, _method: &reqwest::Method, _url: &Url) -> Result<(), String> {
         Ok(())
@@ -39,7 +39,7 @@ pub enum AofRequest {
 }
 
 const RNAME_CTX: &str = "aof_ctx";
-pub(crate) fn init_rt(rt: &mut JsRuntime, ctx: Rc<dyn ScriptContext>) {
+pub(crate) fn init_rt(rt: &mut JsRuntime, ctx: Arc<dyn ScriptContext>) {
     rt.op_state()
         .borrow_mut()
         .resource_table
@@ -48,6 +48,7 @@ pub(crate) fn init_rt(rt: &mut JsRuntime, ctx: Rc<dyn ScriptContext>) {
 
 pub(crate) trait OpStateExt {
     fn script_ctx(&self) -> Result<&dyn ScriptContext, ()>;
+    fn script_ctx_arc(&self) -> Result<&Arc<dyn ScriptContext>, ()>;
 }
 
 fn get_script_ctx_rid(state: &OpState) -> Result<u32, ()> {
@@ -66,11 +67,14 @@ fn get_script_ctx_rid(state: &OpState) -> Result<u32, ()> {
 
 impl OpStateExt for OpState {
     fn script_ctx(&self) -> Result<&dyn ScriptContext, ()> {
+        self.script_ctx_arc().map(|s| &**s)
+    }
+    fn script_ctx_arc(&self) -> Result<&Arc<dyn ScriptContext>, ()> {
         match self
             .resource_table
-            .get::<Rc<dyn ScriptContext>>(get_script_ctx_rid(self)?)
+            .get::<Arc<dyn ScriptContext>>(get_script_ctx_rid(self)?)
         {
-            Some(res) => Ok(&**res),
+            Some(res) => Ok(res),
             None => Err(()),
         }
     }
