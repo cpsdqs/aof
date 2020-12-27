@@ -1,0 +1,14 @@
+{
+    "name": "AOF",
+    "short_name": "AOF",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#333333",
+    "description": "Auto-fetcher client",
+    "icons": [{
+        "src": "../static/icon-192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any"
+    }]
+}

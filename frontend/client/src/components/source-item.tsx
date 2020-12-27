@@ -1,6 +1,8 @@
 import { h, Component } from 'preact';
 import { createRef, useRef, Fragment, PureComponent } from 'preact/compat';
 import { Progress, TaskButton } from 'uikit';
+// @ts-ignore
+import { sanitize } from 'dompurify';
 import {
     api,
     connectf,
@@ -83,7 +85,7 @@ export function SourceItemHeader({ source, uri }: { source: string, uri: string 
 
 const DEFAULT_SHADOW_STYLES = `
 /* default styles */
-p {
+.html-body > p {
     text-align: justify;
 }
 img {
@@ -142,8 +144,9 @@ class HtmlContainer extends PureComponent<HtmlContainer.Props> {
         const dp = new DOMParser();
         const DOM_PRE = '<!doctype html><html><body>';
         const DOM_POST = '</body></html>';
-        const doc = dp.parseFromString(DOM_PRE + this.props.html + DOM_POST, 'text/html');
+        let doc = dp.parseFromString(DOM_PRE + this.props.html + DOM_POST, 'text/html');
 
+        // demote some common offenders to text nodes that can be inspected later
         const demoteNodeToText = (node: HTMLElement) => {
             let replacement = doc.createElement('div');
             replacement.className = 'removed-tag';
@@ -158,6 +161,7 @@ class HtmlContainer extends PureComponent<HtmlContainer.Props> {
         doc.querySelectorAll('frame').forEach(demoteNodeToText);
         doc.querySelectorAll('frameset').forEach(demoteNodeToText);
 
+        // adjust iframe sandboxes to be less bad (should be sufficient for youtube embeds?)
         doc.querySelectorAll('iframe').forEach(frame => {
             if (!frame.hasAttribute('sandbox')) {
                 frame.setAttribute('sandbox', 'allow-scripts allow-popups allow-same-origin');
@@ -173,6 +177,9 @@ class HtmlContainer extends PureComponent<HtmlContainer.Props> {
             frame.referrerPolicy = 'no-referrer';
         });
 
+        // sanitize the rest with dompurify
+        doc = sanitize(doc, { IN_PLACE: true });
+
         doc.querySelectorAll('a').forEach(anchor => {
             anchor.target = '_blank';
             anchor.rel = 'nofollow noreferrer';
@@ -180,10 +187,6 @@ class HtmlContainer extends PureComponent<HtmlContainer.Props> {
 
         this.aspectImages = [];
         doc.querySelectorAll('img').forEach(image => {
-            // images often have html event listeners...
-            for (const attr of image.getAttributeNames()) {
-                if (attr.startsWith('on')) image.removeAttribute(attr);
-            }
             if (image.hasAttribute('width') && image.hasAttribute('height')) {
                 const width = image.getAttribute('width')!;
                 const height = image.getAttribute('height')!;
@@ -223,9 +226,12 @@ class HtmlContainer extends PureComponent<HtmlContainer.Props> {
         }
 
         shadow.innerHTML = '';
+        const htmlBody = document.createElement('div');
+        htmlBody.className = 'html-body';
+        shadow.appendChild(htmlBody);
         for (const child of childNodes) {
             doc.body.removeChild(child);
-            shadow.appendChild(child);
+            htmlBody.appendChild(child);
         }
 
         if (this.props.onShadowRender) this.props.onShadowRender(shadow);

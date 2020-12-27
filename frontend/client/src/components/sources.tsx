@@ -80,127 +80,127 @@ export default class Sources<T extends string[]> extends PureComponent<Sources.P
             let views = [];
             let contents;
             if (list) {
-                if (!list.length) {
-                    contents = (
-                        <div class="list-empty">
-                            {emptyMessage}
-                        </div>
-                    );
-                } else {
-                    let stillLoading = false;
-                    const filtered = !!this.state.search.query || !!Object.keys(this.state.filters).length;
+                let stillLoading = false;
+                const filtered = !!this.state.search.query || !!Object.keys(this.state.filters).length;
 
-                    // ALRIGHT, SO this is the whole filtering logic
-                    // when no filter is active (filtered = false) then we want to sort
-                    // by last updated, so we still need to load all sources!
-                    const domains = new Set<string>(this.domainsListCache);
-                    for (const uri of list) {
-                        views.push(connectf(join(SOURCE, parseUri(uri)), view => {
-                            if (view.loaded && view.get() !== this.sourceCache.get(uri)) {
-                                this.sourceCache.set(uri, view.get());
+                // ALRIGHT, SO this is the whole filtering logic
+                // when no filter is active (filtered = false) then we want to sort
+                // by last updated, so we still need to load all sources!
+                const domains = new Set<string>(this.domainsListCache);
+                for (const uri of list) {
+                    views.push(connectf(join(SOURCE, parseUri(uri)), view => {
+                        if (view.loaded && view.get() !== this.sourceCache.get(uri)) {
+                            this.sourceCache.set(uri, view.get());
+                            this.scheduleUpdate();
+                        }
+                        return null;
+                    }, { key: `source-${uri}` }));
+                    if (filtered) {
+                        // these are only needed if we're actually filtering
+                        views.push(connectf(join(SOURCE_USER_DATA, parseUri(uri)), view => {
+                            if (view.get() !== this.sourceUserDataCache.get(uri)) {
+                                this.sourceUserDataCache.set(uri, view.get());
                                 this.scheduleUpdate();
                             }
                             return null;
-                        }, { key: `source-${uri}` }));
-                        if (filtered) {
-                            // these are only needed if we're actually filtering
-                            views.push(connectf(join(SOURCE_USER_DATA, parseUri(uri)), view => {
-                                if (view.get() !== this.sourceUserDataCache.get(uri)) {
-                                    this.sourceUserDataCache.set(uri, view.get());
-                                    this.scheduleUpdate();
-                                }
-                                return null;
-                            }, { key: `source-data-${uri}` }));
-                            domains.add(parseUri(uri)[0]);
-                        }
+                        }, { key: `source-data-${uri}` }));
+                        domains.add(parseUri(uri)[0]);
                     }
-                    let prefilteredList = list.map(uri => ({ uri, searchScore: 1, updated: '' }));
+                }
+                let prefilteredList = list.map(uri => ({ uri, searchScore: 1, updated: '' }));
 
-                    if (filtered) {
-                        views.push(connect(DOMAINS_LIST_USER, view => {
-                            if (view.loaded) {
-                                if (view.get() !== this.domainsListCache) {
-                                    this.domainsListCache = view.get() || [];
-                                    this.scheduleUpdate();
-                                }
+                if (filtered) {
+                    views.push(connect(DOMAINS_LIST_USER, view => {
+                        if (view.loaded) {
+                            if (view.get() !== this.domainsListCache) {
+                                this.domainsListCache = view.get() || [];
+                                this.scheduleUpdate();
+                            }
+                        }
+                        return null;
+                    }, { key: 'domains list' }));
+
+                    // also load all domains
+                    for (const domain of domains) {
+                        views.push(connect(join(DOMAIN, domain), view => {
+                            if (view.get() !== this.domainCache.get(domain)) {
+                                this.domainCache.set(domain, view.get());
+                                this.scheduleUpdate();
                             }
                             return null;
-                        }, { key: 'domains list' }));
+                        }, { key: `domain-${domain}` }));
+                    }
 
-                        // also load all domains
-                        for (const domain of domains) {
-                            views.push(connect(join(DOMAIN, domain), view => {
-                                if (view.get() !== this.domainCache.get(domain)) {
-                                    this.domainCache.set(domain, view.get());
-                                    this.scheduleUpdate();
-                                }
-                                return null;
-                            }, { key: `domain-${domain}` }));
-                        }
-
-                        prefilteredList = [];
-                        // pre-filter the list by assigning a search score and such
-                        for (const uri of list) {
-                            const cached = this.sourceCache.get(uri);
-                            const cachedUserData = this.sourceUserDataCache.get(uri);
-                            if (cached) {
-                                let searchScore = 1;
-                                if (this.state.search.query) {
-                                    searchScore = getSearchScore(uri, this.domainCache, cached, this.state.search);
-                                }
-
-                                searchScore *= filter(cached, cachedUserData, this.state.filters);
-
-                                prefilteredList.push({
-                                    uri,
-                                    searchScore,
-                                    updated: '',
-                                });
-
+                    prefilteredList = [];
+                    // pre-filter the list by assigning a search score and such
+                    for (const uri of list) {
+                        const cached = this.sourceCache.get(uri);
+                        const cachedUserData = this.sourceUserDataCache.get(uri);
+                        if (cached) {
+                            let searchScore = 1;
+                            if (this.state.search.query) {
+                                searchScore = getSearchScore(uri, this.domainCache, cached, this.state.search);
                             }
-                            if (!cached || !cachedUserData) stillLoading = true;
+
+                            searchScore *= filter(cached, cachedUserData, this.state.filters);
+
+                            prefilteredList.push({
+                                uri,
+                                searchScore,
+                                updated: '',
+                            });
+
                         }
+                        if (!cached || !cachedUserData) stillLoading = true;
                     }
+                }
 
-                    // we need to set the "updated" field too
-                    for (const item of prefilteredList) {
-                        const cached = this.sourceCache.get(item.uri);
-                        if (cached && cached.data && cached.data.last_updated) {
-                            item.updated = cached.data.last_updated;
-                        }
+                // we need to set the "updated" field too
+                for (const item of prefilteredList) {
+                    const cached = this.sourceCache.get(item.uri);
+                    if (cached && cached.data && cached.data.last_updated) {
+                        item.updated = cached.data.last_updated;
                     }
+                }
 
-                    if (this.state.search.query) {
-                        // sort by search score if searching
-                        prefilteredList = prefilteredList
-                            .filter(x => x.searchScore > 0)
-                            .sort((a, b) => b.searchScore - a.searchScore);
-                    } else {
-                        // otherwise, sort by last updated
-                        prefilteredList = prefilteredList
-                            .filter(x => x.searchScore > 0)
-                            .sort((a, b) => b.updated.localeCompare(a.updated));
-                    }
+                if (this.state.search.query) {
+                    // sort by search score if searching
+                    prefilteredList = prefilteredList
+                        .filter(x => x.searchScore > 0)
+                        .sort((a, b) => b.searchScore - a.searchScore);
+                } else {
+                    // otherwise, sort by last updated
+                    prefilteredList = prefilteredList
+                        .filter(x => x.searchScore > 0)
+                        .sort((a, b) => b.updated.localeCompare(a.updated));
+                }
 
-                    const filteredList = prefilteredList.map(x => x.uri);
+                const filteredList = prefilteredList.map(x => x.uri);
 
-                    if (this.state.search.field === SearchField.ID_TITLE) {
-                        const uris = getExactUriSearch(this.domainCache, this.state.search.query);
-                        if (uris.length) filteredList.unshift(...uris);
-                    }
+                if (this.state.search.field === SearchField.ID_TITLE) {
+                    const uris = getExactUriSearch(this.domainCache, this.state.search.query);
+                    if (uris.length) filteredList.unshift(...uris);
+                }
 
-                    contents = filteredList.map(uri => (
-                        <Source
-                            visibilityCheck
-                            key={uri}
-                            uri={uri}
-                            selected={selected === uri}
-                            onSelect={onSelect && (() => onSelect(uri))} />
-                    ));
+                contents = filteredList.map(uri => (
+                    <Source
+                        visibilityCheck
+                        key={uri}
+                        uri={uri}
+                        selected={selected === uri}
+                        onSelect={onSelect && (() => onSelect(uri))} />
+                ));
 
-                    if (stillLoading) {
-                        contents.push(<Progress block />);
-                    }
+                if (!list.length && !filteredList.length) {
+                    contents.push(
+                        <div key="!empty" class="list-empty">
+                            {emptyMessage}
+                        </div>
+                    );
+                }
+
+                if (stillLoading) {
+                    contents.push(<Progress block />);
                 }
             } else if (view.hasError) {
                 contents = (

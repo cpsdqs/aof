@@ -58,7 +58,9 @@ Required items:
 - `connect-src`
     - `'self'`
     - `wss://<domain>` for web sockets
-    
+- `manifest-src`
+    - `'self'` for PWA
+
 ## impl todo
 - enforce max size of resources
 - implement rate limiting tokens

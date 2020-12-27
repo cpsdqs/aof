@@ -14,6 +14,7 @@ import rust from '@wasm-tool/rollup-plugin-rust';
 import offMainThread from '@surma/rollup-plugin-off-main-thread';
 import { terser } from 'rollup-plugin-terser';
 import html from '@open-wc/rollup-plugin-html';
+import copy from 'rollup-plugin-copy';
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const prod = process.env.NODE_ENV === 'production';
@@ -56,6 +57,11 @@ export default {
         rust({
             debug: false, // force release mode because otherwise crypto is *sloooow*
             serverPath: '.',
+        }),
+        copy({
+            targets: [
+                { src: 'manifest.json', dest: '../../static/client' },
+            ],
         }),
     ].filter(x => x),
     moduleContext: id => {

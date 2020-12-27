@@ -7,7 +7,7 @@ import Autosize from './autosize';
 /// - children must not change height randomly
 export function ItemList({ class: pClassName, children }: { class?: string, children: ComponentChildren }) {
     let className = 'item-list ';
-    className += pClassName;
+    className += (pClassName || '');
 
     return (
         <Autosize component="div" class={className}>
