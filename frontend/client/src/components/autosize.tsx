@@ -14,9 +14,7 @@ export default class Autosize extends PureComponent<Autosize.Props> {
             .map((child: HTMLElement) => child.offsetHeight)
             .reduce((a: number, b: number) => a + b, 0);
 
-        if (!animate) {
-            this.height.value = this.height.target;
-        }
+        if (!animate) this.height.finish();
 
         if (this.height.wantsUpdate()) globalAnimator.register(this);
     };

@@ -69,6 +69,7 @@ export default class Sources<T extends string[]> extends PureComponent<Sources.P
     onRefresh = async () => {
         for (const uri of this.sourceCache.keys()) {
             cache.delete(join(SOURCE, parseUri(uri)));
+            cache.delete(join(SOURCE_USER_DATA, parseUri(uri)));
         }
         await load(this.props.list);
     };

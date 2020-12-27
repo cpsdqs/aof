@@ -13,8 +13,10 @@ import {
     LOGIN_DELETE_ACCOUNT
 } from '../../data';
 import { cache } from '../../data/cache';
-import Dialog, { DialogContents } from '../../components/dialog';
+import Dialog from '../../components/dialog';
 import { Form, FormDescription, FormFooter, FormItem } from '../../components/form';
+
+// TODO: instead of just setting flags in local storage, make a proper settings api
 
 export default function SettingsPage(this: Component, { route }: PageProps) {
     const [dialog, setDialog] = useState<string | null>(null);
@@ -27,6 +29,15 @@ export default function SettingsPage(this: Component, { route }: PageProps) {
                 <ItemListItem
                     label={get('pages.settings.locale')}
                     trailing={<LocalePicker />} />
+                <ItemListItem
+                    label={get('pages.settings.auto_collapse_source_items')}
+                    trailing={<Checkbox
+                        checked={!!localStorage.aof_auto_collapse_source_items}
+                        onChange={checked => {
+                            if (checked) localStorage.aof_auto_collapse_source_items = '1';
+                            else delete localStorage.aof_auto_collapse_source_items;
+                            this.forceUpdate();
+                        }} />} />
                 <ItemListItem
                     label={get('pages.settings.dev_mode')}
                     trailing={<Checkbox

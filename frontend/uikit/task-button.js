@@ -15,9 +15,23 @@ export default class TaskButton extends PureComponent {
     };
 
     #loading = new Spring(1, 0.3);
+    #width = new Spring(1, 0.3);
     #button = createRef(null);
     #circleSize;
-    #buttonWidth;
+
+    updateWidth = (animate) => {
+        const button = this.#button.current;
+        if (!button) return;
+
+        const originalStyleWidth = button.style.width;
+        button.style.width = '';
+        this.#width.target = button.offsetWidth;
+        button.style.width = originalStyleWidth;
+
+        if (!animate) this.#width.finish();
+
+        if (this.#width.wantsUpdate()) globalAnimator.register(this);
+    };
 
     get loading() {
         return this.state.loading || this.props.loading;
@@ -27,9 +41,11 @@ export default class TaskButton extends PureComponent {
         this.#loading.target = this.loading ? 1 : 0;
 
         this.#loading.update(dt);
+        this.#width.update(dt);
 
-        if (!this.loading && !this.#loading.wantsUpdate()) {
+        if (!this.loading && !this.#loading.wantsUpdate() && !this.#width.wantsUpdate()) {
             this.#loading.finish();
+            this.#width.finish();
             globalAnimator.deregister(this);
         }
 
@@ -38,7 +54,7 @@ export default class TaskButton extends PureComponent {
 
     componentDidMount() {
         globalAnimator.register(this);
-        this.updateMetrics();
+        this.updateMetrics(true);
     }
 
     componentDidUpdate(prevProps) {
@@ -47,8 +63,10 @@ export default class TaskButton extends PureComponent {
 
             if (this.props.loading) {
                 this.setState({ popoutOpen: false });
-                this.updateMetrics();
             }
+        }
+        if (this.props.loading !== prevProps.loading || this.props.children !== prevProps.children) {
+            this.updateMetrics();
         }
     }
 
@@ -76,9 +94,9 @@ export default class TaskButton extends PureComponent {
         });
     }
 
-    updateMetrics() {
+    updateMetrics(skipAnimation) {
         this.#circleSize = this.#button.current.offsetHeight;
-        this.#buttonWidth = this.#button.current.offsetWidth;
+        this.updateWidth(!skipAnimation);
     }
 
     run = (e) => {
@@ -110,7 +128,7 @@ export default class TaskButton extends PureComponent {
     }) {
         const l = this.#loading.value;
         const taskButtonWidth = l
-            ? (this.#circleSize - this.#buttonWidth) * l + this.#buttonWidth
+            ? (this.#circleSize - this.#width.value) * l + this.#width.value
             : null;
 
         let className = 'task-button ';
@@ -118,10 +136,16 @@ export default class TaskButton extends PureComponent {
         if (disabled) className += 'is-disabled ';
         className += pClassName || '';
 
+        let buttonStyle = {};
+        if (this.#width.value !== this.#width.target) {
+            buttonStyle.width = this.#width.value;
+        }
+
         return (
             <span class={className}>
                 <button
                     ref={this.#button}
+                    style={buttonStyle}
                     disabled={disabled}
                     class="task-button-inner"
                     onClick={this.onClick}>

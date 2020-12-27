@@ -163,6 +163,7 @@ pages:
         device: 'Device Settings'
         account: 'Account Settings'
         locale: 'Language'
+        auto_collapse_source_items: 'Auto-collapse item lists'
         dev_mode: 'Developer mode'
         view_data: 'View account data'
         change_name: 'Change username'

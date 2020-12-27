@@ -17,7 +17,7 @@ import { SourceItemFetch } from './source-item';
 
 export default class SourceItems extends PureComponent<SourceItems.Props> {
     state = {
-        collapsed: false,
+        collapsed: !!localStorage.aof_auto_collapse_source_items,
     };
 
     render({ uri, selected }: SourceItems.Props) {
@@ -38,12 +38,33 @@ export default class SourceItems extends PureComponent<SourceItems.Props> {
 
                 if (source && source.data) {
                     let isAllRead = true;
+                    let didFindFirstUnread = false;
 
-                    for (const item of source.data.items) {
+                    for (let i = 0; i < source.data.items.length; i++) {
+                        const item = source.data.items[i];
                         const isRead = new SourceUserData(userDataView.get()).itemReadState(item.path).read;
                         if (!isRead) isAllRead = false;
 
-                        if (this.state.collapsed && item.path !== selected) continue;
+                        const isLastItem = i === source.data.items.length - 1;
+
+                        if (this.state.collapsed) {
+                            let shouldShow = false;
+                            if (item.path === selected) {
+                                shouldShow = true;
+                                didFindFirstUnread = true;
+                            }
+                            if (!selected) {
+                                if (!isRead && !didFindFirstUnread) {
+                                    shouldShow = true;
+                                    didFindFirstUnread = true;
+                                }
+                                if (!didFindFirstUnread && isLastItem) {
+                                    shouldShow = true;
+                                }
+                            }
+
+                            if (!shouldShow) continue;
+                        }
 
                         let innerLabel = item.path;
                         if (typeof item.tags.title === 'string') {

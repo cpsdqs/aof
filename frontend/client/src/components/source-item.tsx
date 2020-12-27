@@ -26,7 +26,7 @@ import ErrorDisplay from './error-display';
 import FetchLogDialog from './fetch-log-dialog';
 import { HtmlContainer } from './html-container';
 
-export function SourceItemHeader({ source, uri }: { source: string, uri: string }) {
+export function SourceItemHeader(this: Component, { source, uri }: { source: string, uri: string }) {
     const sourceUri = source;
     return connectf(join(SOURCE, parseUri(source)), view => connectf(join(SOURCE_USER_DATA, parseUri(source)), userDataView => {
         let openCanonical = <span />;
@@ -34,6 +34,7 @@ export function SourceItemHeader({ source, uri }: { source: string, uri: string 
         const itemPath = '/' + parseUri(uri).slice(1).join('/');
 
         const source = view.get();
+        let previousItem: ISourceMetaItem | null = null;
         let item = null;
         if (source && source.data) {
             for (const i of source.data.items) {
@@ -41,6 +42,7 @@ export function SourceItemHeader({ source, uri }: { source: string, uri: string 
                     item = i;
                     break;
                 }
+                previousItem = i;
             }
         }
 
@@ -57,6 +59,18 @@ export function SourceItemHeader({ source, uri }: { source: string, uri: string 
                 {readState.read ? get('sources.items.mark_unread') : get('sources.items.mark_read')}
             </TaskButton>
         );
+
+        let openPrevious;
+        if (previousItem) {
+            openPrevious = (
+                <TaskButton class="prev-item-button" run={async () => {
+                    const sourcePath = parseUri(sourceUri).join('/');
+                    this.context.navigate(`sources/${sourcePath}:item${previousItem!.path}`);
+                }}>
+                    <span class="inner-arrow" />
+                </TaskButton>
+            );
+        }
 
         if (typeof item?.tags === 'object' && typeof (item!.tags as any).canonical_url === 'string') {
             openCanonical = (
@@ -75,7 +89,10 @@ export function SourceItemHeader({ source, uri }: { source: string, uri: string 
 
         return (
             <div class="source-item-header">
-                {readStateButton}
+                <div class="header-group">
+                    {readStateButton}
+                    {openPrevious}
+                </div>
                 {openCanonical}
             </div>
         );

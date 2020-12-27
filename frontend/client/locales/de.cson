@@ -155,6 +155,7 @@ pages:
         device: 'Gerätespezifische Einstellungen'
         account: 'Kontoeinstellungen'
         locale: 'Sprache'
+        auto_collapse_source_items: 'Artikellisten automatisch minimieren'
         dev_mode: 'Entwicklermodus'
         view_data: 'Nutzerdaten einsehen'
         change_name: 'Benutzernamen ändern'

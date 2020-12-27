@@ -6,6 +6,38 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    .prev-item-button {
+        margin-left: 1em;
+        --task-button-color: var(--soft-shade);
+        --task-button-fg: var(--fg);
+
+        .inner-arrow {
+            display: inline-block;
+            position: relative;
+            width: 1em;
+            height: 1em;
+
+            &::before, &::after {
+                content: '';
+                position: absolute;
+                background: currentColor;
+                top: 50%;
+                left: 50%;
+                width: 0.7em;
+                --y: -0.1em;
+                --h: 0.07em;
+                height: calc(var(--h) * 2);
+                border-radius: 100em;
+                transform-origin: var(--h) 50%;
+                --mh: calc(var(--h) * -1);
+                transform: translateY(var(--y)) translate(var(--mh), var(--mh)) rotate(45deg);
+            }
+            &::after {
+                transform: translateY(var(--y)) translate(var(--mh), var(--mh)) rotate(135deg);
+            }
+        }
+    }
 }
 
 .source-item-contents {
