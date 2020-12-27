@@ -138,6 +138,9 @@ sources:
         log:
             show: 'Details'
             title: 'Fetch Log'
+    metadata:
+        content_tags:
+            title: 'Inhaltstags'
     details:
         open_canonical: 'Öffnen'
     items:
@@ -179,6 +182,7 @@ pages:
     source:
         subscribe: 'Abonnieren'
         unsubscribe: 'Entfernen'
+        delete: 'Löschen'
     domains:
         title: 'Domänen'
         tabs:

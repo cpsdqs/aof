@@ -121,6 +121,11 @@ export default {
             throw new Error(get(`data.sources.${res.error}`));
         }
     },
+    delete: async ({ uri }) => {
+        const res = await req<IResult>('user_delete_source', { uri });
+        if (!res.success) throw new Error(get(`data.sources.${res.error}`));
+        cache.delete(join(SOURCE, parseUri(uri)));
+    },
     request: async ({ uri }) => {
         const res = await req<IResult>('user_request_source', { uri });
         if (!res.success) {

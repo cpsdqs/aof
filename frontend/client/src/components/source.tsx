@@ -19,6 +19,7 @@ import get from '../locale';
 import ErrorDisplay from './error-display';
 import { OpenExternalIcon, LockIcon } from './icons';
 import FetchLogDialog from './fetch-log-dialog';
+import { HtmlContainer } from './html-container';
 
 export default class Source extends PureComponent<Source.Props> {
     state = {
@@ -120,6 +121,7 @@ function SourceTitle({ source, uri, loading }: { source: ISource | null, uri: st
         <div class="source-title">
             <div class="title-inner">
                 <SourceId id={uri} />
+                {' '}
                 <span class="title-label">
                     {titleLabel}
                 </span>
@@ -340,5 +342,141 @@ function Authors({ authors }: { authors?: { name: string, url?: string }[] }) {
         <ul class="source-authors">
             {authors.map(author => <Author author={author} />)}
         </ul>
+    );
+}
+
+type ObjectMap = { [k: string]: unknown };
+export function SourceMetadata({ uri }: { uri: string }) {
+    return connectf(join(SOURCE, parseUri(uri)), view => {
+        let contents;
+        if (view.loaded) {
+            const source = view.get()!;
+            if (!source.loaded) return null;
+            contents = [];
+
+            const data = source.data.data;
+
+            const canonicalUrl = typeof data.canonical_url === 'string'
+                ? data.canonical_url : undefined;
+
+            if (data.content_tags && typeof data.content_tags === 'object') {
+                contents.push(
+                    <SourceContentTags key="content_tags" tags={data.content_tags as ObjectMap} />
+                );
+            }
+            if (data.description && typeof data.description === 'object') {
+                contents.push(
+                    <SourceDescription
+                        key="description"
+                        description={data.description as ObjectMap}
+                        canonicalUrl={canonicalUrl} />
+                );
+            }
+        } else if (view.hasError) {
+            contents = (
+                <ErrorDisplay error={view.getError()} />
+            );
+        } else {
+            contents = (
+                <Progress block />
+            );
+        }
+
+        return (
+            <div class="source-metadata">
+                {contents}
+            </div>
+        );
+    });
+}
+
+function SourceContentTags({ tags }: { tags: ObjectMap }) {
+    const categories = [];
+    for (const category in tags) {
+        let items = tags[category];
+        if (!Array.isArray(items)) return null;
+        items = items.map((item, i) => {
+            if (!item || typeof item !== 'object') return null;
+            return <SourceContentTag key={i} tag={item} />;
+        }).filter(x => x);
+
+        if (!(items as any).length) continue;
+
+        categories.push(
+            <div key={category} class="content-tag-category">
+                <span class="tag-category-name">{category}</span>
+                {items}
+            </div>
+        );
+    }
+    if (!categories.length) return null;
+    return (
+        <div class="source-content-tags">
+            <div class="content-tags-title">{get('sources.metadata.content_tags.title')}</div>
+            {categories}
+        </div>
+    );
+}
+
+function SourceContentTag({ tag }: { tag: ObjectMap }) {
+    if (typeof tag.name !== 'string') return null;
+    if (typeof tag.url === 'string') {
+        return (
+            <a
+                class="source-content-tag is-linked"
+                target="_blank"
+                rel="nofollow noreferrer"
+                href={tag.url}>
+                {tag.name}
+            </a>
+        );
+    }
+    return <span class="source-content-tag">{tag.name}</span>;
+}
+
+const DEFAULT_DESCRIPTION_STYLES = `
+.html-body > p:first-child {
+    margin-top: 0;
+}
+.html-body > p:last-child {
+    margin-bottom: 0;
+}
+img {
+    max-width: 100%;
+}
+a {
+    color: var(--accent);
+}
+.removed-tag {
+    display: none;
+}
+`;
+function SourceDescription({ canonicalUrl, description }: { canonicalUrl?: string, description: ObjectMap }) {
+    const addDescriptionStyles = (shadow: ShadowRoot) => {
+        const style = shadow.ownerDocument.createElement('style');
+        style.innerHTML = DEFAULT_DESCRIPTION_STYLES;
+        shadow.insertBefore(style, shadow.firstChild);
+    };
+
+    const items = [];
+    for (const k in description) {
+        const v = description[k];
+        if (typeof v !== 'string') continue;
+        if (!v.trim()) continue;
+
+        items.push(
+            <div class="description-item">
+                <div class="description-item-title">{k}</div>
+                <HtmlContainer
+                    html={v}
+                    referrer={canonicalUrl}
+                    onShadowRender={addDescriptionStyles} />
+            </div>
+        );
+    }
+    return (
+        <div class="source-description">
+            {items}
+        </div>
     );
 }

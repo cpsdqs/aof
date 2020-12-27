@@ -175,11 +175,16 @@ export default class Sources<T extends string[]> extends PureComponent<Sources.P
                         .sort((a, b) => b.updated.localeCompare(a.updated));
                 }
 
-                const filteredList = prefilteredList.map(x => x.uri);
+                let filteredList = prefilteredList.map(x => x.uri);
 
                 if (this.state.search.field === SearchField.ID_TITLE) {
                     const uris = getExactUriSearch(this.domainCache, this.state.search.query);
-                    if (uris.length) filteredList.unshift(...uris);
+                    if (uris.length) {
+                        // get rid of duplicates in search results
+                        filteredList = filteredList.filter(uri => !uris.includes(uri));
+                        // show exact matches at the top
+                        filteredList.unshift(...uris);
+                    }
                 }
 
                 contents = filteredList.map(uri => (

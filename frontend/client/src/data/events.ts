@@ -6,7 +6,7 @@ import {
     SOURCE,
     SOURCE_FETCH,
     SOURCE_ITEM, SOURCE_ITEM_DATA,
-    SOURCE_ITEM_FETCH, SOURCES_LIST_USER
+    SOURCE_ITEM_FETCH, SOURCE_ITEM_USER_DATA, SOURCE_USER_DATA, SOURCES_LIST_USER
 } from './paths';
 
 const events = {
@@ -37,10 +37,20 @@ const events = {
             cache.delete(join(SOURCE_ITEM_DATA, parseUri(data.source_item)));
         }
     },
+    source_user_data_did_update: (data: { source: string }) => {
+        const path = join(SOURCE_USER_DATA, parseUri(data.source));
+        // force reload
+        cache.delete(path);
+    },
+    source_item_user_data_did_update: (data: { source_item: string }) => {
+        const path = join(SOURCE_ITEM_USER_DATA, parseUri(data.source_item));
+        // force reload
+        cache.delete(path);
+    },
     user_did_subscribe_source: (data: { source: string }) => {
         if (cache.has(SOURCES_LIST_USER)) {
             const list = cache.get<Key<string[]>>(SOURCES_LIST_USER)!;
-            list.push(data.source);
+            if (!list.includes(data.source)) list.push(data.source);
             cache.insert(SOURCES_LIST_USER, list);
         }
     },

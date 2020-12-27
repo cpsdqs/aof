@@ -1,12 +1,12 @@
 import { h } from 'preact';
-import { PureComponent } from 'preact/compat';
+import { PureComponent, useRef } from 'preact/compat';
 import { PageProps } from '../../../router';
-import Source from '../../../components/source';
+import Source, { SourceMetadata } from '../../../components/source';
 import './index.less';
 import SourceItems from '../../../components/source-items';
 import {
-    connectf,
-    load,
+    connectf, join,
+    load, parseUri, SOURCE, SOURCE_DELETE,
     SOURCE_SUBSCRIBE,
     SOURCE_UNSUBSCRIBE,
     SOURCES_LIST_USER
@@ -28,6 +28,7 @@ export default class SourcePage extends PureComponent<PageProps> {
                     }}
                     uri={uri} />
                 <SourceActions uri={uri} />
+                <SourceMetadata uri={uri} />
             </div>
         )
     }
@@ -50,12 +51,43 @@ function SourceActions({ uri }: { uri: string }) {
             toggle = async () => {};
             contents = <Progress />;
         }
-        return <TaskButton run={toggle}>{contents}</TaskButton>
+        return (
+            <TaskButton class="list-action-button" run={toggle}>
+                {contents}
+            </TaskButton>
+        );
+    });
+
+    const deleteButtonRef = useRef<TaskButton>();
+    const deleteButton = connectf(join(SOURCE, parseUri(uri)), view => {
+        let deleteData = async () => {};
+        let contents = null;
+        if (view.loaded) {
+            const source = view.get()!;
+            if (source.loaded) {
+                const run = async () => {
+                    await load(SOURCE_DELETE, { uri });
+                };
+                deleteData = async () => {
+                    deleteButtonRef.current!.showAction(get('pages.source.delete'), run);
+                };
+                contents = get('pages.source.delete');
+            }
+        } else {
+            contents = <Progress />;
+        }
+        if (!contents) return null;
+        return (
+            <TaskButton ref={deleteButtonRef} class="delete-button" run={deleteData}>
+                {contents}
+            </TaskButton>
+        );
     });
 
     return (
         <div class="source-page-actions">
             {addToList}
+            {deleteButton}
         </div>
     );
 }
