@@ -10,11 +10,20 @@ lazy_static! {
 }
 
 #[derive(Default, Deserialize)]
+pub struct AutoFetcherConfig {
+    pub fetcher_count: u64,
+    pub minor_interval: u64,
+    pub minor_item_interval: u64,
+    pub major_interval: u64,
+}
+
+#[derive(Default, Deserialize)]
 pub struct Config {
     pub bind_addr: String,
     pub database: String,
     pub private_key: String,
     pub base_path: String,
+    pub auto_fetcher: Option<AutoFetcherConfig>,
 }
 
 #[derive(Debug, Error)]

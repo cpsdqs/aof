@@ -1,3 +1,4 @@
+use crate::config::Config;
 use crate::data::sources::canonicalize_uri;
 use crate::data::DataError;
 use crate::fetcher::Fetcher;
@@ -10,16 +11,56 @@ use std::thread;
 use std::time::Duration;
 
 // TODO: better algorithm
-// TODO: make these configurable
-const CYCLE_SLEEP: Duration = Duration::from_secs(5600);
-const FETCHER_WAIT: Duration = Duration::from_secs(45);
-const FETCHER_ITEM_WAIT: Duration = Duration::from_secs(40);
+
 const PHASE_OFFSET_TIME: Duration = Duration::from_secs(3);
+
+fn get_cycle_sleep() -> Duration {
+    Duration::from_secs(
+        Config::shared()
+            .auto_fetcher
+            .as_ref()
+            .map(|f| f.major_interval)
+            .unwrap_or(3600),
+    )
+}
+fn get_fetcher_wait() -> Duration {
+    Duration::from_secs(
+        Config::shared()
+            .auto_fetcher
+            .as_ref()
+            .map(|f| f.minor_interval)
+            .unwrap_or(45),
+    )
+}
+fn get_fetcher_item_wait() -> Duration {
+    Duration::from_secs(
+        Config::shared()
+            .auto_fetcher
+            .as_ref()
+            .map(|f| f.minor_item_interval)
+            .unwrap_or(40),
+    )
+}
 
 pub fn start(state: Arc<State>) {
     let fstate: Arc<Mutex<AutoFetcherState>> = Default::default();
 
-    for i in 0..4 {
+    debug!(
+        "auto fetcher intervals: Q {:?} S {:?} I {:?}",
+        get_cycle_sleep(),
+        get_fetcher_wait(),
+        get_fetcher_item_wait()
+    );
+
+    let fetcher_count = Config::shared()
+        .auto_fetcher
+        .as_ref()
+        .map(|f| f.fetcher_count)
+        .unwrap_or(3);
+
+    debug!("starting {} fetcher thread(s)", fetcher_count);
+
+    for i in 0..(1 + fetcher_count) {
         let mut name = format!("auto-fetcher-{}", i);
         let is_enqueue_thread = i == 0;
         if is_enqueue_thread {
@@ -36,13 +77,13 @@ pub fn start(state: Arc<State>) {
                 if is_enqueue_thread {
                     loop {
                         auto_fetcher.maybe_enqueue();
-                        thread::sleep(CYCLE_SLEEP);
+                        thread::sleep(get_cycle_sleep());
                     }
                 } else {
-                    thread::sleep(PHASE_OFFSET_TIME * i);
+                    thread::sleep(PHASE_OFFSET_TIME * i as u32);
                     loop {
                         auto_fetcher.cycle();
-                        thread::sleep(FETCHER_WAIT);
+                        thread::sleep(get_fetcher_wait());
                     }
                 }
             })
@@ -166,7 +207,7 @@ impl AutoFetcher {
                             .unwrap_or_default();
 
                         if self.maybe_fetch_one_item(source_uri, &item_uri)? {
-                            thread::sleep(FETCHER_ITEM_WAIT);
+                            thread::sleep(get_fetcher_item_wait());
                         }
                     }
                     debug!("Done fetching items for {}", source_uri);

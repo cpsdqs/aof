@@ -10,3 +10,18 @@ database='aof.db'
 # The private key used for session cookies.
 # Arbitrary string, but must be at least 32 bytes.
 private_key=''
+
+[auto_fetcher]
+# Auto Fetcher configuration.
+# The Auto Fetcher currently runs on a queue. Sources will be put into a queue, then dequeued slowly
+# until the queue is empty, at which point they will eventually be enqueued again.
+# Each source is also assigned a probability of being skipped based on when it was last updated.
+
+# Number of individual workers, which will be run in parallel.
+fetcher_count = 3
+# Number of seconds between source dequeues on a single worker.
+minor_interval = 60
+# Number of seconds between source item fetches on a single worker.
+minor_item_interval = 40
+# Number of seconds between enqueue attempts.
+major_interval = 5400

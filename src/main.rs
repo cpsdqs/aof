@@ -108,7 +108,8 @@ async fn main() -> std::io::Result<()> {
             Err(err) => {
                 error!(target: "config", "failed to read config file at {}: {}", config_file_path,
                        err);
-                error!(target: "config", "you may want to generate a config file (see --help)");
+                error!(target: "config", "you may want to generate a config file (see --help) or \
+                    check if the provided file has the correct format");
                 process::exit(-1);
             }
         };

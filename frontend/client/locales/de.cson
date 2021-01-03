@@ -149,6 +149,8 @@ sources:
         mark_read: 'Gelesen'
         finished: 'Gelesen'
         mark_unread: 'Ungelesen'
+        mark_all_read: 'Alle als gelesen markieren'
+        mark_all_unread: 'Alle als ungelesen markieren'
 pages:
     settings:
         title: 'Einstellungen'
