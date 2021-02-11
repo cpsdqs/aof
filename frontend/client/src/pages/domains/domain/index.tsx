@@ -134,27 +134,27 @@ function DeleteDialog({
 function AddDomainButton({ id }: { id: string }) {
     return connect(DOMAINS_LIST_USER, view => {
         const list = view.get();
+        let run = async () => {};
+        let contents: any = <Progress />;
         if (list) {
             if (list.includes(id)) {
-                return (
-                    <TaskButton run={async () => {
-                        await load(DOMAIN_UNSUBSCRIBE, { id });
-                    }}>
-                        {get('pages.domain.unsubscribe')}
-                    </TaskButton>
-                );
+                run = async () => {
+                    await load(DOMAIN_UNSUBSCRIBE, { id });
+                };
+                contents = get('pages.domain.unsubscribe');
             } else {
-                return (
-                    <TaskButton run={async () => {
-                        await load(DOMAIN_SUBSCRIBE, { id });
-                    }}>
-                        {get('pages.domain.subscribe')}
-                    </TaskButton>
-                )
+                run = async () => {
+                    await load(DOMAIN_SUBSCRIBE, { id });
+                };
+                contents = get('pages.domain.subscribe');
             }
         }
 
-        return <Progress />;
+        return (
+            <TaskButton run={run}>
+                {contents}
+            </TaskButton>
+        );
     });
 }
 

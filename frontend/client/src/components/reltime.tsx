@@ -17,8 +17,8 @@ function getRelativeTime(timestamp: any, useDays: boolean, def: string) {
         const tDay = new Date(t.getFullYear(), t.getMonth(), t.getDate());
         const nDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-        const dy = Math.floor(tDay.getFullYear() - nDay.getFullYear());
         const dd = Math.round((+tDay - +nDay) / 86400000);
+        const dy = Math.trunc(dd / 365.2425); // close enough
 
         if (!Number.isFinite(dd)) return get('time.reltime.unknown');
 

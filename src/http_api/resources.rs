@@ -46,11 +46,39 @@ where
 
 const FORWARDED_HEADER_WHITE_LIST: &[&str] = &[
     "accept",
-    "cache-control",
+    "accept-charset",
     "accept-encoding",
+    "accept-language",
+    "cache-control",
+    "if-match",
+    "if-none-match",
+    "if-modified-since",
+    "if-unmodified-since",
+    "range",
+    "if-range",
     "connection",
     "pragma",
-    "accept-language",
+];
+const RECEIVED_HEADER_WHITE_LIST: &[&str] = &[
+    "content-type",
+    "content-length",
+    "content-encoding",
+    "content-language",
+    "content-location",
+    "accept-ranges",
+    "content-range",
+    "forwarded",
+    "location",
+    "date",
+    "age",
+    "cache-control",
+    "expires",
+    "vary",
+    "pragma",
+    "last-modified",
+    "etag",
+    "server",
+    "transfer-encoding",
 ];
 
 #[get("/camo")]
@@ -117,7 +145,11 @@ async fn camo(
                                     // FIXME: do something maybe?
                                 }
                             }
-                        } else {
+                        } else if RECEIVED_HEADER_WHITE_LIST
+                            .iter()
+                            .find(|l| k == **l)
+                            .is_some()
+                        {
                             res_headers.append(k.clone(), v.clone());
                         }
                     }
