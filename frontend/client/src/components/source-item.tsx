@@ -293,6 +293,7 @@ export function SourceItemNext(this: Component, { source, uri }: { source: strin
         if (view.get()?.loaded) {
             let nextItem: ISourceMetaItem | null = null;
             let didFindItem = false;
+            let useAdventurePrompt = view.get()!.data.data.use_adventure_prompt;
 
             for (const item of view.get()!.data.items) {
                 if (didFindItem) {
@@ -323,11 +324,29 @@ export function SourceItemNext(this: Component, { source, uri }: { source: strin
                         this.context.navigate(`sources/${sourcePath}:item${nextItem!.path}`);
                     };
 
-                    contents = (
-                        <TaskButton run={openNextItem} class="next-item-button">
-                            <span class="inner-arrow" />
-                        </TaskButton>
-                    );
+                    if (useAdventurePrompt) {
+                        const title = nextItem!.tags?.title;
+                        contents = (
+                            <TaskButton run={openNextItem} class="next-item-button is-adventure-prompt">
+                                {typeof title === 'string' && <span class="inner-prompt">&gt;</span>}
+                                <span class="inner-prompt-contents">
+                                    {typeof title === 'string'
+                                        ? title
+                                        : (
+                                            <span class="inner-prompt-continue">
+                                                <span class="p-arrow" />
+                                            </span>
+                                        )}
+                                </span>
+                            </TaskButton>
+                        );
+                    } else {
+                        contents = (
+                            <TaskButton run={openNextItem} class="next-item-button">
+                                <span class="inner-arrow" />
+                            </TaskButton>
+                        );
+                    }
                 } else {
                     const isRead = readState.read;
                     contents = (

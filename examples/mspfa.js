@@ -37,6 +37,7 @@ export async function loadSource(path) {
         content_tags: { freeform: storyData.t.map(t => ({ name: t, url: null })) },
         description: { summary: storyData.r },
         canonical_url: canonicalURL,
+        use_adventure_prompt: true,
     };
 
     const items = storyData.p.map((item, index) => ({

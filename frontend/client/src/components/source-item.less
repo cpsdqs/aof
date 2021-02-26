@@ -158,6 +158,65 @@
                 transform: translateY(var(--y)) translate(var(--mh), var(--mh)) rotate(-135deg);
             }
         }
+
+        &.is-adventure-prompt {
+            font-size: 1.3em;
+            line-height: 1.5;
+
+            .task-button-inner {
+                padding: 0 1em;
+                background: transparent;
+            }
+
+            .inner-prompt {
+                margin-right: 0.5em;
+            }
+            .inner-prompt-contents {
+                color: var(--accent);
+
+                .inner-prompt-continue {
+                    display: inline-block;
+                    position: relative;
+                    width: 1.5em;
+                    height: 1em;
+                    vertical-align: -0.2em;
+                    --h: 0.1em;
+                    --h2: calc(var(--h) / 2);
+
+                    &::before {
+                        content: '';
+                        position: absolute;
+                        top: 50%;
+                        left: 0;
+                        background: currentColor;
+                        width: 1.5em;
+                        height: var(--h);
+                        transform: translateY(calc(var(--h2) * -1));
+                    }
+
+                    .p-arrow {
+                        position: absolute;
+                        top: 50%;
+                        left: 1.5em;
+
+                        &::before, &::after {
+                            content: '';
+                            position: absolute;
+                            background: currentColor;
+                            width: 0.5em;
+                            height: var(--h);
+                            transform-origin: var(--h2) var(--h2);
+                        }
+                        &::before {
+                            transform: translateY(calc(var(--h2) * -1)) rotate(135deg);
+                        }
+                        &::after {
+                            transform: translateY(calc(var(--h2) * -1)) rotate(-135deg);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     .finished-button {
