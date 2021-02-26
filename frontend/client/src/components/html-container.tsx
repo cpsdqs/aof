@@ -63,13 +63,24 @@ export class HtmlContainer extends PureComponent<HtmlContainer.Props> {
         // sanitize the rest with dompurify
         doc = sanitize(doc, {
             IN_PLACE: true,
-            ADD_TAGS: ['iframe'],
+            ADD_TAGS: ['iframe', 'link'],
             ADD_ATTR: ['sandbox', 'allow', 'referrerPolicy', 'frameborder', 'allowfullscreen'],
         });
 
         doc.querySelectorAll('a').forEach(anchor => {
             anchor.target = '_blank';
             anchor.rel = 'nofollow noreferrer';
+        });
+
+        doc.querySelectorAll('link').forEach(link => {
+            try {
+                const srcUrl = new URL(link.href);
+                if (['http:', 'https:'].includes(srcUrl.protocol)) {
+                    const s = encodeURIComponent(srcUrl.toString());
+                    const r = this.props.referrer ? encodeURIComponent(this.props.referrer) : null;
+                    link.href = api(`resources/camo?url=${s}` + (r ? `&referrer=${r}` : ''));
+                }
+            } catch {}
         });
 
         this.aspectImages = [];
@@ -97,6 +108,13 @@ export class HtmlContainer extends PureComponent<HtmlContainer.Props> {
                         image.src = api(`resources/camo?url=${s}` + (r ? `&referrer=${r}` : ''));
 
                         image.addEventListener('click', () => {
+                            let parent: Node | null = image;
+                            while ((parent = parent.parentNode)) {
+                                if (parent instanceof HTMLButtonElement || parent instanceof HTMLInputElement) {
+                                    return;
+                                }
+                            }
+
                             // TODO: use some sort of lightbox instead
                             const a = document.createElement('a');
                             a.target = '_blank';

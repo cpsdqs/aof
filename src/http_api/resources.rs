@@ -62,7 +62,6 @@ const FORWARDED_HEADER_WHITE_LIST: &[&str] = &[
 const RECEIVED_HEADER_WHITE_LIST: &[&str] = &[
     "content-type",
     "content-length",
-    "content-encoding",
     "content-language",
     "content-location",
     "accept-ranges",

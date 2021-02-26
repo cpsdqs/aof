@@ -106,6 +106,23 @@ const htmlPre = `
 #content > span > img:first-child:last-child {
     display: block;
 }
+button {
+    line-height: 1.5;
+}
+button, input.major[type="button"], input.major[type="submit"], input.major[type="reset"] {
+    padding: 8px 12px;
+    outline: none;
+    border: 2px solid #ddd;
+    border-right-color: #898989;
+    border-bottom-color: #898989;
+    background: #eee;
+}
+button:enabled:active,
+input.major[type="button"]:enabled:active,
+input.major[type="submit"]:enabled:active,
+input.major[type="reset"]:enabled:active {
+    border-color: #898989 #ddd #ddd #898989;
+}
 
 .spoiler {
     border: 1px dashed gray;
