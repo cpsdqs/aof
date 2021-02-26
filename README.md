@@ -55,6 +55,7 @@ Required items:
 - `child-src`
     - `'self'` for web workers
     - `blob:` for ace editor web workers
+    - additional domains for iframes as needed
 - `connect-src`
     - `'self'`
     - `wss://<domain>` for web sockets

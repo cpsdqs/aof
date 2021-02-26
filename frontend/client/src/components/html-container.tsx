@@ -6,7 +6,7 @@ import { sanitize } from 'dompurify';
 
 export class HtmlContainer extends PureComponent<HtmlContainer.Props> {
     node = createRef<HTMLDivElement>();
-    aspectImages: HTMLImageElement[] = [];
+    aspectImages: (HTMLImageElement | HTMLIFrameElement)[] = [];
 
     load() {
         const node = this.node.current;
@@ -49,12 +49,23 @@ export class HtmlContainer extends PureComponent<HtmlContainer.Props> {
             frame.sandbox.remove('allow-downloads-without-user-activation');
             // frame.sandbox.remove('allow-same-origin');
 
+            // force youtube-nocookie
+            frame.src = frame.src.replace(
+                /^(https?:\/\/(?:www\.)?youtube)(?=\.com\/embed)/,
+                '$1-nocookie',
+            );
+
             frame.allow = 'encrypted-media fullscreen picture-in-picture';
+            frame.allowFullscreen = true;
             frame.referrerPolicy = 'no-referrer';
         });
 
         // sanitize the rest with dompurify
-        doc = sanitize(doc, { IN_PLACE: true });
+        doc = sanitize(doc, {
+            IN_PLACE: true,
+            ADD_TAGS: ['iframe'],
+            ADD_ATTR: ['sandbox', 'allow', 'referrerPolicy', 'frameborder', 'allowfullscreen'],
+        });
 
         doc.querySelectorAll('a').forEach(anchor => {
             anchor.target = '_blank';
@@ -62,7 +73,8 @@ export class HtmlContainer extends PureComponent<HtmlContainer.Props> {
         });
 
         this.aspectImages = [];
-        doc.querySelectorAll('img').forEach(image => {
+        doc.querySelectorAll('img, iframe').forEach(_image => {
+            let image = _image as (HTMLImageElement | HTMLIFrameElement);
             if (image.hasAttribute('width') && image.hasAttribute('height')) {
                 const width = image.getAttribute('width')!;
                 const height = image.getAttribute('height')!;
@@ -76,23 +88,25 @@ export class HtmlContainer extends PureComponent<HtmlContainer.Props> {
                 }
             }
 
-            try {
-                const srcUrl = new URL(image.src);
-                if (['http:', 'https:'].includes(srcUrl.protocol)) {
-                    const s = encodeURIComponent(srcUrl.toString());
-                    const r = this.props.referrer ? encodeURIComponent(this.props.referrer) : null;
-                    image.src = api(`resources/camo?url=${s}` + (r ? `&referrer=${r}` : ''));
+            if (image instanceof HTMLImageElement) {
+                try {
+                    const srcUrl = new URL(image.src);
+                    if (['http:', 'https:'].includes(srcUrl.protocol)) {
+                        const s = encodeURIComponent(srcUrl.toString());
+                        const r = this.props.referrer ? encodeURIComponent(this.props.referrer) : null;
+                        image.src = api(`resources/camo?url=${s}` + (r ? `&referrer=${r}` : ''));
 
-                    image.addEventListener('click', () => {
-                        // TODO: use some sort of lightbox instead
-                        const a = document.createElement('a');
-                        a.target = '_blank';
-                        a.rel = 'nofollow noreferrer';
-                        a.href = srcUrl.toString();
-                        a.click();
-                    });
-                }
-            } catch {}
+                        image.addEventListener('click', () => {
+                            // TODO: use some sort of lightbox instead
+                            const a = document.createElement('a');
+                            a.target = '_blank';
+                            a.rel = 'nofollow noreferrer';
+                            a.href = srcUrl.toString();
+                            a.click();
+                        });
+                    }
+                } catch {}
+            }
         });
 
         const childNodes = [];

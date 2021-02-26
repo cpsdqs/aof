@@ -107,6 +107,11 @@ const DEFAULT_SHADOW_STYLES = `
 img {
     max-width: 100%;
 }
+iframe {
+    max-width: 100%;
+    box-sizing: border-box;
+    border: none;
+}
 a {
     color: var(--accent);
 }
