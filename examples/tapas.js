@@ -67,7 +67,7 @@ export async function loadSource(path) {
 
         const itemsURL = `https://tapas.io/series/${id}/episodes?page=${page}&sort=OLDEST&max_limit=100&large=true`;
         const res = await loadJson(itemsURL);
-        if (!res.code === 200) {
+        if (res.code !== 200) {
             console.error(res);
             throw new Error(`Unexpected tapas/episodes response`);
         }

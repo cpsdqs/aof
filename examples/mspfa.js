@@ -7,7 +7,7 @@
 // You can POST to / with do=story&s={id} and it will give you literally the ENTIRE THING.
 // Like, every single page.
 // Due to the way AOF works right now, this data will be discarded and loaded again for every
-// single page regardless (which is fine, because the actual website does this too).
+// single page regardless (it might be a good idea to add caching?)
 
 async function loadJson(url, options = {}) {
     const res = await fetch(url, options);

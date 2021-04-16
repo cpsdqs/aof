@@ -16,8 +16,22 @@
 //   After considering adding a hack for webtoon, I opted to make passing the canonical URL of a
 //   source item as the referrer header default behavior in the app.
 
+// SET THESE AS REQUIRED
+const COOKIES = [
+    //'pagGDPR=true',
+    'timezoneOffset=+0',
+    'countryCode=US',
+    'locale=en',
+    'needCCPA=true',
+    'needCOPPA=true',
+    'needGDPR=false',
+];
+
 async function loadHtml(url, headers = {}, onGetUrl) {
-    const res = await fetch(url, { headers });
+    const res = await fetch(url, {
+        headers,
+        Cookie: COOKIES.join('; '),
+    });
     if (onGetUrl) onGetUrl(res.url);
     if (!res.ok) throw new Error('Failed to fetch: got ' + res.status + ' ' + res.statusText);
     const text = await res.text();
