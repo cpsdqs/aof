@@ -157,6 +157,7 @@ def_requests! {
     "user_tokens" => UserTokens,
     "user_domains" => UserDomains,
     "public_domains" => PublicDomains,
+    "user_rss_auth_keys" => UserRssAuthKeys,
     "user_regen_client_key" => UserRegenClientKey,
     "user_enumerate_objects" => UserEnumerateObjects;
 
@@ -201,6 +202,9 @@ def_requests! {
     "domain_script" => DomainScript { id: String },
     "user_subscribe_domain" => UserSubscribeDomain { id: String },
     "user_unsubscribe_domain" => UserUnsubscribeDomain { id: String },
+
+    "user_create_rss_auth_key" => UserCreateRssAuthKey { label: Option<String> },
+    "user_delete_rss_auth_key" => UserDeleteRssAuthKey { key: String },
 }
 
 #[derive(Debug, Error)]
@@ -286,6 +290,19 @@ pub struct SourceResultData {
 }
 
 #[derive(Serialize)]
+pub struct ResponseRssAuthKey {
+    pub label: Option<String>,
+    pub key: String,
+}
+
+#[derive(Serialize)]
+pub struct UserCreateRssAuthKeyResult {
+    pub success: bool,
+    pub key: String,
+    pub error: &'static str,
+}
+
+#[derive(Serialize)]
 #[serde(untagged)]
 pub enum Response {
     UserClientKey(Vec<u8>),
@@ -320,6 +337,10 @@ pub enum Response {
     UserRequestSourceItem(SimpleResult),
     SetSourceUserData(SimpleResult),
     SetSourceItemUserData(SimpleResult),
+
+    UserRssAuthKeys(Vec<ResponseRssAuthKey>),
+    UserCreateRssAuthKey(UserCreateRssAuthKeyResult),
+    UserDeleteRssAuthKey(SimpleResult),
 }
 
 #[derive(Serialize)]

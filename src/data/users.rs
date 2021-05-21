@@ -176,6 +176,11 @@ impl Data {
                 .execute(&self.conn)?;
         }
         {
+            use schema::user_rss_auth_keys::dsl;
+            diesel::delete(dsl::user_rss_auth_keys.filter(dsl::user_id.eq(user)))
+                .execute(&self.conn)?;
+        }
+        {
             use schema::users::dsl;
             diesel::delete(dsl::users.filter(dsl::id.eq(user))).execute(&self.conn)?;
         }

@@ -4,9 +4,7 @@ use crate::data::sources::{canonicalize_uri, SubscribeError};
 use crate::data::users::{ModifyUserError, UserAuthError, UserId};
 use crate::data::DataError;
 use crate::fetcher::FetchRequest;
-use crate::session::protocol::{
-    self, ClientMsg, Request, RequestId, Response, SimpleResult, UserCreateDomainResult,
-};
+use crate::session::protocol::{self, ClientMsg, Request, RequestId, Response, ResponseRssAuthKey, SimpleResult, UserCreateDomainResult, UserCreateRssAuthKeyResult};
 use crate::session::{UserConn, UserConnMsg};
 use crate::state::State;
 use actix::prelude::*;
@@ -14,6 +12,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
 use thiserror::Error;
+use rand::Rng;
 
 /// Manages user actors.
 pub struct UserManager {
@@ -670,6 +669,49 @@ impl User {
                 conn.do_send(UserConnMsg::Response {
                     id,
                     data: Response::SetSourceItemUserData(SimpleResult::Ok),
+                });
+                Ok(())
+            }
+            Request::UserRssAuthKeys => {
+                let auth_keys = data.user_rss_auth_keys(user.id())?;
+                conn.do_send(UserConnMsg::Response {
+                    id,
+                    data: Response::UserRssAuthKeys(
+                        auth_keys
+                            .into_iter()
+                            .map(|key| ResponseRssAuthKey {
+                                label: key.label().map(|s| s.into()),
+                                key: key.auth_key().into(),
+                            })
+                            .collect(),
+                    ),
+                });
+                Ok(())
+            }
+            Request::UserCreateRssAuthKey {
+                label
+            } => {
+                let mut random_bytes = [0_u8; 8];
+                rand::thread_rng().fill(&mut random_bytes);
+                let mut auth_key = hex::encode(&random_bytes);
+                data.user_create_rss_auth_key(user.id(), &auth_key, label.as_ref().map(|s| &**s))?;
+                conn.do_send(UserConnMsg::Response {
+                    id,
+                    data: Response::UserCreateRssAuthKey(UserCreateRssAuthKeyResult {
+                        success: true,
+                        key: auth_key,
+                        error: ""
+                    }),
+                });
+                Ok(())
+            }
+            Request::UserDeleteRssAuthKey {
+                key
+            } => {
+                data.user_delete_rss_auth_key(user.id(), &key)?;
+                conn.do_send(UserConnMsg::Response {
+                    id,
+                    data: Response::UserDeleteRssAuthKey(SimpleResult::Ok),
                 });
                 Ok(())
             }

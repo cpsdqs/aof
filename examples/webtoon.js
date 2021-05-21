@@ -29,8 +29,10 @@ const COOKIES = [
 
 async function loadHtml(url, headers = {}, onGetUrl) {
     const res = await fetch(url, {
-        headers,
-        Cookie: COOKIES.join('; '),
+        headers: {
+            ...headers,
+            Cookie: COOKIES.join('; '),
+        },
     });
     if (onGetUrl) onGetUrl(res.url);
     if (!res.ok) throw new Error('Failed to fetch: got ' + res.status + ' ' + res.statusText);
@@ -132,6 +134,7 @@ export async function loadSource(path) {
                 path: '/' + webtoonType + '/' + titleNo + '/' + episodeNo,
                 tags: {
                     title,
+                    last_updated: iUpdateTime,
                     canonical_url: canonicalItemURL,
                 },
             });

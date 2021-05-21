@@ -93,6 +93,12 @@ User sessions are stored in a cookie `aof_session`.
             - `error`: string. May be one of:
                 - `no_session`: already logged out
                 - `internal_error`: internal error
+ 
+### RSS Proxy
+Sources can be configured to generate RSS feeds.
+
+- GET `/api/rss/<key>/source/<domain>/<path>`
+    - response is RSS XML (empty if not loaded)
 
 ### Sources
 #### Source Domains
@@ -571,6 +577,31 @@ Returns:
 
 ##### `public_domains`
 Returns a list of ids of public domains.
+
+##### `user_rss_auth_keys`
+No parameters.
+Returns all RSS authentication keys that belong to a user, as an array of objects with following
+fields:
+
+- `key`: string
+- `label`: string or null
+
+##### `user_create_rss_auth_key`
+Parameters:
+- `label`: string or null
+
+Returns:
+- `success`: bool
+- `key`: string if successful
+
+##### `user_delete_rss_auth_key`
+Parameters:
+- `key`: string
+
+Returns:
+- `success`: bool
+- `error`: string if not successful. one of:
+    - `not_found`
 
 #### Events
 ##### `protocol_error`

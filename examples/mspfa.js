@@ -44,6 +44,7 @@ export async function loadSource(path) {
         path: '/' + id + '/' + (index + 1),
         tags: {
             canonical_url: `https://mspfa.com/?s=${id}&p=${index + 1}`,
+            last_updated: new Date(item.d).toISOString(),
             title: item.c,
         },
     }));

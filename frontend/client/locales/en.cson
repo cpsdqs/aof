@@ -157,6 +157,14 @@ sources:
         mark_unread: 'Mark unread'
         mark_all_read: 'Mark all as read'
         mark_all_unread: 'Mark all as unread'
+    rss:
+        feed_link:
+            title: 'RSS Feed'
+            limit: 'Item Count Limit'
+            use_camo: 'Use Media Proxy'
+            link: 'Link'
+            open: 'Open in Reader'
+            done: 'Done'
 pages:
     settings:
         title: 'Settings'
@@ -217,5 +225,23 @@ pages:
         delete:
             title: 'Delete'
             description: 'Are you sure you want to delete this domain?'
+            cancel: 'Cancel'
+            confirm: 'Delete'
+rss_auth_keys:
+    dialog:
+        title: 'RSS Keys'
+        title_pick: 'Pick RSS Key'
+        create:
+            title: 'Create RSS Key'
+            cancel: 'Cancel'
+            confirm: 'Create'
+            description: 'RSS keys are used to authenticate your account when loading RSS feeds.'
+            label: 'Description'
+            label_placeholder: 'optional'
+        select_key: 'Use this key'
+        empty: 'No keys'
+        delete:
+            title: 'Delete RSS Key'
+            description: 'Are you sure you want to delete this key?'
             cancel: 'Cancel'
             confirm: 'Delete'

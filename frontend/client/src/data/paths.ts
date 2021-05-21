@@ -214,3 +214,16 @@ export const SOURCE_DELETE: FnLoad<{ uri: string }, void> = 'aof://sources/delet
 
 export const SOURCE_REQUEST: FnLoad<{ uri: string }, void> = 'aof://sources/request';
 export const SOURCE_ITEM_REQUEST: FnLoad<{ uri: string }, void> = 'aof://sources/request_item';
+
+export interface IRssAuthKey {
+    key: string,
+    label: string | null,
+}
+export type PRssAuthKeysType = {
+    list_user: Fn<typeof RSS_AUTH_KEY_LIST_USER>,
+    create: Fn<typeof RSS_AUTH_KEY_CREATE>,
+    delete: Fn<typeof RSS_AUTH_KEY_DELETE>,
+};
+export const RSS_AUTH_KEY_LIST_USER: Key<IRssAuthKey[]> = 'aof://rss_auth_keys/list_user';
+export const RSS_AUTH_KEY_CREATE: FnLoad<{ label: string | null }, string> = 'aof://rss_auth_keys/create';
+export const RSS_AUTH_KEY_DELETE: FnLoad<{ key: string }, void> = 'aof://rss_auth_keys/delete';

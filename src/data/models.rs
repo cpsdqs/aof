@@ -93,3 +93,12 @@ pub struct NewSourceDomain<'a> {
     pub is_public: &'a bool,
     pub script: &'a str,
 }
+
+#[derive(Debug, Clone, Queryable)]
+pub struct RssAuthKey {
+    pub id: Option<i32>,
+    pub user_id: i32,
+    pub label: Option<String>,
+    pub auth_key: String,
+    pub tokens: i32,
+}

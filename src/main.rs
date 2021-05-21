@@ -85,6 +85,8 @@ async fn main() -> std::io::Result<()> {
             } else {
                 log::LevelFilter::Info
             })
+            .level_for("html5ever", log::LevelFilter::Info)
+            .level_for("selectors", log::LevelFilter::Info)
             .chain(std::io::stdout())
             .apply()
             .expect("Failed to initialize logging");
@@ -132,7 +134,7 @@ async fn main() -> std::io::Result<()> {
     let state = web::Data::new(State::new(pool));
 
     match matches.subcommand() {
-        ("create-token", Some(sc)) => {
+        ("create-token", Some(_)) => {
             create_registration_token(&state);
         }
         _ => (),

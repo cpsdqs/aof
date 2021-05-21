@@ -2,6 +2,7 @@ import { Load, FnA } from '../paths';
 import connection from './connection';
 import login from './login';
 import domains from './domains';
+import rss_auth_keys from './rss-auth-keys';
 import sources from './sources';
 
 function getNodeIdParts(node: Load) {
@@ -49,5 +50,6 @@ const types: Types = {
     connection,
     login,
     domains,
+    rss_auth_keys,
     sources,
 };

@@ -10,7 +10,7 @@ use std::time::{Duration, Instant};
 use thiserror::Error;
 
 const MIN_FETCH_TIME: Duration = Duration::from_millis(200);
-pub const USER_AGENT: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36";
+pub const USER_AGENT: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.72 Safari/537.36";
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(20);
 
 const MAX_RESPONSE_SIZE: usize = 256 * 1024 * 1024; // 256 MiB

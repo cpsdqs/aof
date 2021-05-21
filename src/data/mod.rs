@@ -9,6 +9,7 @@ pub mod domains;
 mod models;
 mod registration;
 mod schema;
+mod rss_auth_keys;
 pub mod sources;
 pub mod users;
 

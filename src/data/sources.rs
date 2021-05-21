@@ -707,7 +707,7 @@ impl SourceItemVersionSnapshot {
     }
 
     pub fn get_data(&self) -> Result<SourceItemData, DataError> {
-        let mut content_dec = gzip::Decoder::new(io::Cursor::new(&self.inner.data))?;
+        let content_dec = gzip::Decoder::new(io::Cursor::new(&self.inner.data))?;
         let content = rmp_serde::decode::from_read(content_dec)?;
 
         Ok(content)

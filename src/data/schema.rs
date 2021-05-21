@@ -67,6 +67,16 @@ table! {
 }
 
 table! {
+    user_rss_auth_keys (id) {
+        id -> Nullable<Integer>,
+        user_id -> Integer,
+        label -> Nullable<Text>,
+        auth_key -> Text,
+        tokens -> Integer,
+    }
+}
+
+table! {
     user_source_domain_subscriptions (id) {
         id -> Nullable<Integer>,
         user_id -> Integer,
@@ -123,6 +133,7 @@ allow_tables_to_appear_in_same_query!(
     source_resources,
     source_version_associated_items,
     source_versions,
+    user_rss_auth_keys,
     user_source_domain_subscriptions,
     user_source_items,
     user_source_subscriptions,

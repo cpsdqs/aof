@@ -110,6 +110,7 @@ export async function loadSource(path) {
                 virtual,
                 tags: {
                     title,
+                    last_updated: itemUpdateTime,
                     canonical_url: canonicalItemURL,
                 },
             });

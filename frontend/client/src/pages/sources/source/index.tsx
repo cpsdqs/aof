@@ -13,6 +13,7 @@ import {
 } from '../../../data';
 import { Progress, TaskButton } from 'uikit';
 import get from '../../../locale';
+import SourceRss from '../../../components/source-rss';
 
 export default class SourcePage extends PureComponent<PageProps> {
     render({ route }: PageProps) {
@@ -35,8 +36,9 @@ export default class SourcePage extends PureComponent<PageProps> {
 }
 
 function SourceActions({ uri }: { uri: string }) {
-    const addToList = connectf(SOURCES_LIST_USER, view => {
+    const subscription = connectf(SOURCES_LIST_USER, view => {
         let toggle, contents;
+        let isSubscribed = false;
         if (view.loaded) {
             toggle = async () => {
                 if (view.get()!.includes(uri)) {
@@ -45,16 +47,27 @@ function SourceActions({ uri }: { uri: string }) {
                     await load(SOURCE_SUBSCRIBE, { uri });
                 }
             };
-            if (view.get()!.includes(uri)) contents = get('pages.source.unsubscribe');
-            else contents = get('pages.source.subscribe');
+            if (view.get()!.includes(uri)) {
+                isSubscribed = true;
+                contents = get('pages.source.unsubscribe');
+            } else {
+                contents = get('pages.source.subscribe');
+            }
         } else {
             toggle = async () => {};
             contents = <Progress />;
         }
         return (
-            <TaskButton class="list-action-button" run={toggle}>
-                {contents}
-            </TaskButton>
+            <span class="subscription-actions">
+                <TaskButton class="list-action-button" run={toggle}>
+                    {contents}
+                </TaskButton>
+                <span
+                    class={'action-rss-container' + (!isSubscribed ? ' is-hidden' : '')}
+                    aria-hidden={!isSubscribed}>
+                    <SourceRss uri={uri} />
+                </span>
+            </span>
         );
     });
 
@@ -86,7 +99,7 @@ function SourceActions({ uri }: { uri: string }) {
 
     return (
         <div class="source-page-actions">
-            {addToList}
+            {subscription}
             {deleteButton}
         </div>
     );
