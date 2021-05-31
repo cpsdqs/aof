@@ -14,6 +14,7 @@ use thiserror::Error;
 mod script;
 
 pub use script::{request_fetch_permission, run_ipc_fork, FetchMsg, FetchTime};
+use crate::session::protocol::UpdateType;
 
 pub struct Fetcher {
     data: SharedData,
@@ -76,7 +77,7 @@ impl Fetcher {
         let (msg, res) = script::fetch_source(&domain_name, domain.script(), uri.path());
 
         match res {
-            Ok(source) => {
+            Ok(mut source) => {
                 let data = shared_data.lock();
                 let uri = uri.to_string();
                 let date = Utc::now();
@@ -92,11 +93,44 @@ impl Fetcher {
                     success: true,
                     log: msg.clone().into_iter().map(|x| x.into()).collect(),
                 });
-                for user in evt_users {
-                    data.user_update_source(user, &uri, date, &hash)?;
+                for user in &evt_users {
+                    data.user_update_source(*user, &uri, date, &hash)?;
                     shared_data
                         .users()
-                        .do_send(UserMgrDispatchEvent(user, evt.clone()));
+                        .do_send(UserMgrDispatchEvent(*user, evt.clone()));
+                }
+
+                if !source.item_data.is_empty() {
+                    for meta_item in &source.items {
+                        if let Some(source_item) = source.item_data.remove(&meta_item.path) {
+                            let mut item_uri = String::from(&domain_name);
+                            item_uri.push_str("://");
+                            item_uri.push_str(&meta_item.path);
+                            let item_uri = match canonicalize_uri(&item_uri) {
+                                Ok(uri) => uri.to_string(),
+                                Err(_) => continue,
+                            };
+
+                            let hash = data.create_source_item_version(
+                                &item_uri,
+                                SourceItemData {
+                                    tags: source_item.tags,
+                                },
+                                source_item.last_updated.as_ref().map(|s| &**s),
+                            )?;
+
+                            let evt = DispatchUserEvent::new(protocol::Event::SubscribedSourceItemDidUpdate {
+                                source_item: uri.clone(),
+                                update_type: UpdateType::Update,
+                            });
+                            for user in &evt_users {
+                                data.user_update_source_item(*user, &item_uri, date, &hash)?;
+                                shared_data
+                                    .users()
+                                    .do_send(UserMgrDispatchEvent(*user, evt.clone()));
+                            }
+                        }
+                    }
                 }
 
                 Ok((msg, Some(hash)))

@@ -16,6 +16,8 @@ pub struct SourceFetchData {
     pub tags: BTreeMap<String, Value>,
     #[serde(default)]
     pub items: Vec<SourceMetaItem>,
+    #[serde(default)]
+    pub item_data: BTreeMap<String, SourceItemFetchData>,
 }
 
 /// Source item data output from a script.

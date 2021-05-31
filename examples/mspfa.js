@@ -6,8 +6,7 @@
 // Notes about MSPFA:
 // You can POST to / with do=story&s={id} and it will give you literally the ENTIRE THING.
 // Like, every single page.
-// Due to the way AOF works right now, this data will be discarded and loaded again for every
-// single page regardless (it might be a good idea to add caching?)
+// Hence, we do not need an implementation of loadSourceItem at all.
 
 async function loadJson(url, options = {}) {
     const res = await fetch(url, options);
@@ -48,38 +47,26 @@ export async function loadSource(path) {
             title: item.c,
         },
     }));
+    const item_data = Object.fromEntries(storyData.p.map((item, index) => [
+        '/' + id + '/' + (index + 1),
+        {
+            tags: {
+                title: item.c,
+                contents: bb2Html(item.b),
+            },
+        },
+    ]));
 
     return {
         last_updated: new Date(storyData.u).toISOString(),
         tags,
         items,
+        item_data,
     };
 }
 
 export async function loadSourceItem(path) {
-    const [id, page] = path.substr(1).split('/');
-
-    const storyData = await loadJson('https://mspfa.com', {
-        method: 'POST',
-        headers: {
-            'content-type': 'application/x-www-form-urlencoded',
-        },
-        body: `do=story&s=${id}`,
-    });
-
-    if (typeof storyData.n !== 'string' || !Array.isArray(storyData.p)) throw new Error('Bad JSON?');
-
-    const item = storyData.p[page - 1];
-    if (!item) throw new Error('Page not found');
-
-    const tags = {
-        title: item.c,
-        contents: bb2Html(item.b),
-    };
-
-    return {
-        tags,
-    };
+    throw new Error('Operation not permitted. Load the source directly!');
 }
 
 const htmlPre = `

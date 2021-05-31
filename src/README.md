@@ -135,6 +135,9 @@ type Source = {
             ...
         },
     }[],
+    // if available, item data can be provided here directly.
+    // will be ignored if the path is not in `items`
+    item_data?: { [path: string]: SourceItem },
 };
 
 type SourceItem = {
