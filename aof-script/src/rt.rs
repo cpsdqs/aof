@@ -12,6 +12,8 @@ use std::sync::Arc;
 use thiserror::Error;
 
 use crate::script_ctx::*;
+use futures::channel::mpsc::Receiver;
+use smol::stream::StreamExt;
 
 const INITIAL_HEAP_SIZE: usize = 0;
 const MAX_HEAP_SIZE: usize = 256 * 1024 * 1024; // 256 MiB
@@ -39,19 +41,23 @@ impl ScriptRt {
             startup_snapshot: None,
             will_snapshot: false,
             create_params: Some(create_params),
+            extensions: crate::ops::init(),
+            v8_platform: None,
         });
 
         crate::script_ctx::init_rt(&mut runtime, Arc::clone(&ctx));
-        crate::ops::init(&mut runtime, ctx)?;
+        crate::ops::init_rt(&mut runtime, ctx)?;
 
         Ok(ScriptRt { runtime })
     }
 
-    pub async fn eval_module(&mut self, module: Url) -> Result<(), AnyError> {
+    pub async fn eval_module(
+        &mut self,
+        module: Url,
+    ) -> Result<Receiver<Result<(), AnyError>>, AnyError> {
         let module = ModuleSpecifier::from(module);
         let mod_id = self.runtime.load_module(&module, None).await?;
-        self.runtime.mod_evaluate(mod_id).await?;
-        Ok(())
+        Ok(self.runtime.mod_evaluate(mod_id))
     }
 
     pub async fn run_event_loop(&mut self) -> Result<(), AnyError> {
@@ -97,8 +103,11 @@ impl InnerScript {
     }
 
     pub async fn run(&mut self) -> Result<(), AnyError> {
-        self.rt.eval_module(self.exec_module.clone()).await?;
-        self.rt.run_event_loop().await?;
+        let mut module = self.rt.eval_module(self.exec_module.clone()).await.unwrap();
+        self.rt.run_event_loop().await.unwrap();
+        while let Some(next) = module.next().await {
+            next.unwrap();
+        }
         Ok(())
     }
 }
@@ -150,7 +159,7 @@ impl ModuleLoader for ModLoader {
         _: Option<ModuleSpecifier>,
         _: bool,
     ) -> Pin<Box<dyn Future<Output = Result<ModuleSource, AnyError>>>> {
-        let url = specifier.as_url().clone();
+        let url = specifier.clone();
         let module = self.modules.get(&url).map(Clone::clone);
 
         async move {

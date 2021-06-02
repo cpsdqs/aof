@@ -1,19 +1,17 @@
 import { register } from './deno-dom/src/parser.ts';
 
 interface DenoCore {
-    ops();
-    jsonOpSync(name: string, args: any, buffer: Uint8Array): unknown;
+    opSync(op: string, data1?: unknown, data2?: unknown): unknown;
 }
-const core = (Deno as any).core as DenoCore;
-core.ops();
+const core = (globalThis as any).Deno.core as DenoCore;
 
 const encoder = new TextEncoder();
 function parse(html: string): string {
-    return core.jsonOpSync('denoDomParseSync', {}, encoder.encode(html)) as string;
+    return core.opSync('deno_dom_parse_sync', html) as string;
 }
 
 function parseFrag(html: string): string {
-    return core.jsonOpSync('denoDomParseFragSync', {}, encoder.encode(html)) as string;
+    return core.opSync('deno_dom_parse_frag_sync', html) as string;
 }
 
 register(parse, parseFrag);

@@ -45,13 +45,7 @@ async function loadHtml(url, headers = {}, onGetUrl) {
 }
 
 function resolveURL(url, base) {
-    // TODO: do properly
-    if (url.startsWith('/')) {
-        const host = base.match(/^\w+:\/\/[^\/]+/)[0];
-        return host + url;
-    }
-    if (url.startsWith('http')) return url;
-    return base.replace(/\/[^\/]+$/, '/') + url;
+    return new URL(url, base).toString();
 }
 
 // only returns contents of text child nodes
@@ -120,7 +114,7 @@ export async function loadSource(path) {
             const episodeNo = li.getAttribute('data-episode-no');
             if (!episodeNo) return;
             const canonicalItemURL = resolveURL(li.querySelector('a').getAttribute('href'), canonicalURL);
-            const title = li.querySelector('.subj')?.textContent?.trim() || '';
+            const title = li.querySelector('.subj span')?.textContent?.trim() || '';
             const iUpdateDate = new Date(li.querySelector('.date')?.textContent.trim());
             let iUpdateTime = null;
             if (Number.isFinite(iUpdateDate.getFullYear())) {

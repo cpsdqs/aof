@@ -67,7 +67,7 @@ export async function loadSource(path) {
     }
 
     return {
-        last_updated: newestPubDate,
+        last_updated: newestPubDate.toISOString(),
         tags,
         items,
     };

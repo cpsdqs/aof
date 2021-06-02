@@ -675,7 +675,7 @@
         const body = new Uint8Array(await readableStreamToBuffer(request.body));
 
         // FIXME: use a mutable buffer instead of using the JSON response (which is super slow)
-        const response = Deno.core.jsonOpSync('aof_fetch', {
+        const response = Deno.core.opSync('aof_fetch', {
             url: request.url,
             method: request.method,
             headers: [...request.headers],

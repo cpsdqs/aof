@@ -15,13 +15,7 @@ async function loadHtml(url, headers = {}) {
 }
 
 function resolveURL(url, base) {
-    // TODO: do properly
-    if (url.startsWith('/')) {
-        const host = base.match(/^\w+:\/\/[^\/]+/)[0];
-        return host + url;
-    }
-    if (url.startsWith('http')) return url;
-    return base.replace(/\/[^\/]+$/, '/') + url;
+    return new URL(url, base).toString();
 }
 
 export async function loadSource(path) {

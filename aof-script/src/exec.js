@@ -1,7 +1,7 @@
 import { loadSource, loadSourceItem } from "###MODULE###";
 
 async function run() {
-    const req = Deno.core.jsonOpSync('aof_get_request');
+    const req = Deno.core.opSync('aof_get_request');
     let res;
     if (req.type === 'source') {
         console.info(`Loading source ${req.path}`);
@@ -13,7 +13,7 @@ async function run() {
     console.info('Script executed successfully');
     if (typeof res !== 'object') throw new Error('Result is not an object; got ' + res);
 
-    Deno.core.jsonOpSync('aof_set_response', res);
+    Deno.core.opSync('aof_set_response', res);
 }
 
 run().catch(err => {

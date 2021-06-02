@@ -1,5 +1,5 @@
-// copied from https://github.com/denoland/deno/blob/4f46dc999b9fd3f26b6586d06d099d7039ca35c8/cli/rt/99_main.js
-// TODO: more apis
+// copied from https://github.com/denoland/deno/blob/8cf7f966f24d0fb996b41d92b04ad9647337a8f6/runtime/js/99_main.js
+delete Object.prototype.__proto__;
 
 ((window) => {
     const eventTarget = window.__bootstrap.eventTarget;
@@ -17,7 +17,6 @@
     const url = window.__bootstrap.url;
     const headers = window.__bootstrap.headers;
     const streams = window.__bootstrap.streams;
-    const fileReader = window.__bootstrap.fileReader;
     const webSocket = window.__bootstrap.webSocket;
     const fetch = window.__bootstrap.fetch;
     const prompt = window.__bootstrap.prompt;
@@ -39,7 +38,6 @@
         ErrorEvent: nonEnumerable(ErrorEvent),
         Event: nonEnumerable(Event),
         EventTarget: nonEnumerable(EventTarget),
-        FileReader: nonEnumerable(fileReader.FileReader),
         MessageEvent: nonEnumerable(MessageEvent),
         ProgressEvent: nonEnumerable(ProgressEvent),
         TextDecoder: nonEnumerable(TextDecoder),

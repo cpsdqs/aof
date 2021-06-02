@@ -1,7 +1,10 @@
 use crate::ops::console::ConsoleMessage;
 use deno_core::url::Url;
-use deno_core::{JsRuntime, OpState};
+use deno_core::{JsRuntime, OpState, Resource};
 use serde::Serialize;
+use std::borrow::Cow;
+use std::ops::Deref;
+use std::rc::Rc;
 use std::sync::Arc;
 
 /// The execution context of a script.
@@ -39,25 +42,40 @@ pub enum AofRequest {
 }
 
 const RNAME_CTX: &str = "aof_ctx";
+
+pub struct CtxResource {
+    ctx: Arc<dyn ScriptContext>,
+}
+impl Resource for CtxResource {
+    fn name(&self) -> Cow<'_, str> {
+        Cow::Borrowed(RNAME_CTX)
+    }
+}
+
+impl Deref for CtxResource {
+    type Target = Arc<dyn ScriptContext>;
+    fn deref(&self) -> &Self::Target {
+        &self.ctx
+    }
+}
+
 pub(crate) fn init_rt(rt: &mut JsRuntime, ctx: Arc<dyn ScriptContext>) {
     rt.op_state()
         .borrow_mut()
         .resource_table
-        .add(RNAME_CTX, Box::new(ctx));
+        .add(CtxResource { ctx });
 }
 
 pub(crate) trait OpStateExt {
-    fn script_ctx(&self) -> Result<&dyn ScriptContext, ()>;
-    fn script_ctx_arc(&self) -> Result<&Arc<dyn ScriptContext>, ()>;
+    fn script_ctx_arc(&self) -> Result<Rc<CtxResource>, ()>;
 }
 
 fn get_script_ctx_rid(state: &OpState) -> Result<u32, ()> {
     let rid = state
         .resource_table
-        .entries()
-        .iter()
-        .find(|(_, name)| **name == RNAME_CTX)
-        .map(|(rid, _)| *rid);
+        .names()
+        .find(|(_, name)| *name == RNAME_CTX)
+        .map(|(rid, _)| rid);
 
     match rid {
         Some(rid) => Ok(rid),
@@ -66,13 +84,10 @@ fn get_script_ctx_rid(state: &OpState) -> Result<u32, ()> {
 }
 
 impl OpStateExt for OpState {
-    fn script_ctx(&self) -> Result<&dyn ScriptContext, ()> {
-        self.script_ctx_arc().map(|s| &**s)
-    }
-    fn script_ctx_arc(&self) -> Result<&Arc<dyn ScriptContext>, ()> {
+    fn script_ctx_arc(&self) -> Result<Rc<CtxResource>, ()> {
         match self
             .resource_table
-            .get::<Arc<dyn ScriptContext>>(get_script_ctx_rid(self)?)
+            .get::<CtxResource>(get_script_ctx_rid(self)?)
         {
             Some(res) => Ok(res),
             None => Err(()),

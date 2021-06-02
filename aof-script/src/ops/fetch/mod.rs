@@ -1,8 +1,9 @@
 use crate::OpStateExt;
 use deno_core::error::AnyError;
+use deno_core::include_js_files;
 use deno_core::serde_json::{self, Value};
 use deno_core::url::{self, Url};
-use deno_core::{json_op_sync, JsRuntime, OpState, ZeroCopyBuf};
+use deno_core::{op_sync, Extension, JsRuntime, OpState, ZeroCopyBuf};
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
 use std::thread::sleep;
@@ -15,10 +16,14 @@ const REQUEST_TIMEOUT: Duration = Duration::from_secs(20);
 
 const MAX_RESPONSE_SIZE: usize = 256 * 1024 * 1024; // 256 MiB
 
-pub fn init(rt: &mut JsRuntime) -> Result<(), AnyError> {
-    rt.register_op("aof_fetch", json_op_sync(op_fetch));
-    rt.execute("fetch.js", include_str!("fetch.js"))?;
-    Ok(())
+pub fn init() -> Extension {
+    Extension::builder()
+        .ops(vec![("aof_fetch", op_sync(op_fetch))])
+        .js(include_js_files! {
+            prefix "deno:aof/fetch",
+            "fetch.js",
+        })
+        .build()
 }
 
 #[derive(Debug, Error)]
@@ -48,7 +53,11 @@ enum RedirectPolicy {
 }
 
 /// Implements the fetch operation. Note that this will block the thread!
-fn op_fetch(state: &mut OpState, args: Value, data: &mut [ZeroCopyBuf]) -> Result<Value, AnyError> {
+fn op_fetch(
+    state: &mut OpState,
+    args: Value,
+    data: Option<ZeroCopyBuf>,
+) -> Result<Value, AnyError> {
     #[derive(Deserialize)]
     struct Args {
         url: String,
@@ -58,7 +67,7 @@ fn op_fetch(state: &mut OpState, args: Value, data: &mut [ZeroCopyBuf]) -> Resul
         referrer: String,
     }
     let args: Args = serde_json::from_value(args)?;
-    let body = match data.get(0) {
+    let body = match data {
         Some(body) => body,
         None => Err(FetchError::NoBody)?,
     };
@@ -82,7 +91,7 @@ fn op_fetch(state: &mut OpState, args: Value, data: &mut [ZeroCopyBuf]) -> Resul
         _ => Err(FetchError::InvalidRedirectPolicy)?,
     };
 
-    let guard = state.script_ctx().map_err(|_| FetchError::NoResource)?;
+    let guard = state.script_ctx_arc().map_err(|_| FetchError::NoResource)?;
 
     guard.fetch_did_start();
 
@@ -92,7 +101,7 @@ fn op_fetch(state: &mut OpState, args: Value, data: &mut [ZeroCopyBuf]) -> Resul
         .map_err(FetchError::Permission)?;
 
     let method2 = method.clone();
-    let guard2 = Arc::clone(state.script_ctx_arc().map_err(|_| FetchError::NoResource)?);
+    let guard2 = Arc::clone(&**state.script_ctx_arc().map_err(|_| FetchError::NoResource)?);
     let redirect_count = Mutex::new(0);
 
     let client = reqwest::Client::builder()

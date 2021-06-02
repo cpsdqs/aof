@@ -9,8 +9,10 @@ name = "aof-script-exec"
 path = "src/main.rs"
 
 [dependencies]
-deno_core = "0.69"
-deno_web = "0.20"
+deno_core = "0.87"
+deno_url = "0.6"
+deno_webidl = "0.6"
+deno_web = "0.36"
 deno-dom = { path = "deno-dom" }
 smol = "1.2"
 tokio =  { version = "0.2", features = ["full"] }

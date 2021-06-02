@@ -31,7 +31,7 @@ pub struct SourceItemFetchData {
 /// Errors that may occur when running a script.
 #[derive(Debug, Error)]
 pub enum ScriptError {
-    #[error("failed to parse data: {0}")]
+    #[error("failed to parse script response: {0}")]
     Parse(#[from] serde_json::Error),
     #[error("script timed out (infinite loop?)")]
     Timeout,

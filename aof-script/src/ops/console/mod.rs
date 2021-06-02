@@ -1,7 +1,8 @@
 use crate::ScriptContext;
 use deno_core::error::AnyError;
-use deno_core::v8;
+use deno_core::include_js_files;
 use deno_core::JsRuntime;
+use deno_core::{v8, Extension};
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use std::fmt;
@@ -18,7 +19,7 @@ struct ConsoleState {
     ctx: Arc<dyn ScriptContext>,
 }
 
-pub fn init(
+pub fn init_rt(
     ctx: Arc<dyn ScriptContext>,
     global: v8::Local<v8::Object>,
     scope: &mut v8::HandleScope<v8::Context>,
@@ -71,8 +72,13 @@ pub fn init(
     Ok(())
 }
 
-pub fn init_rt(rt: &mut JsRuntime) -> Result<(), AnyError> {
-    rt.execute("console.js", include_str!("console.js"))
+pub fn init() -> Extension {
+    Extension::builder()
+        .js(include_js_files! {
+            prefix "deno:aof/console",
+            "console.js",
+        })
+        .build()
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
