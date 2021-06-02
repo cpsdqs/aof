@@ -13,8 +13,8 @@ use thiserror::Error;
 
 mod script;
 
-pub use script::{request_fetch_permission, run_ipc_fork, FetchMsg, FetchTime};
 use crate::session::protocol::UpdateType;
+pub use script::{request_fetch_permission, run_ipc_fork, FetchMsg, FetchTime};
 
 pub struct Fetcher {
     data: SharedData,
@@ -119,10 +119,12 @@ impl Fetcher {
                                 source_item.last_updated.as_ref().map(|s| &**s),
                             )?;
 
-                            let evt = DispatchUserEvent::new(protocol::Event::SubscribedSourceItemDidUpdate {
-                                source_item: uri.clone(),
-                                update_type: UpdateType::Update,
-                            });
+                            let evt = DispatchUserEvent::new(
+                                protocol::Event::SubscribedSourceItemDidUpdate {
+                                    source_item: uri.clone(),
+                                    update_type: UpdateType::Update,
+                                },
+                            );
                             for user in &evt_users {
                                 data.user_update_source_item(*user, &item_uri, date, &hash)?;
                                 shared_data

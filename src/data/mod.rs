@@ -8,8 +8,8 @@ use thiserror::Error;
 pub mod domains;
 mod models;
 mod registration;
-mod schema;
 mod rss_auth_keys;
+mod schema;
 pub mod sources;
 pub mod users;
 

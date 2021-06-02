@@ -518,6 +518,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
+ "stream_generator",
  "subtle",
  "thiserror",
  "time 0.2.22",
@@ -3068,6 +3069,15 @@ name = "stdweb-internal-runtime"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "213701ba3370744dcd1a12960caa4843b3d68b4d1c0a5d575e0d65b2ee9d16c0"
+
+[[package]]
+name = "stream_generator"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3eef07b08bf0ff7aa7d8f0f35f632344d69c4fc2b49e3887cd0c08ee4de82d26"
+dependencies = [
+ "futures",
+]
 
 [[package]]
 name = "string_cache"

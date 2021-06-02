@@ -43,10 +43,12 @@ impl Data {
         auth_key: &str,
     ) -> Result<(), DataError> {
         use schema::user_rss_auth_keys::dsl;
-        diesel::delete(dsl::user_rss_auth_keys
-            .filter(dsl::user_id.eq(user_id))
-            .filter(dsl::auth_key.eq(auth_key)))
-            .execute(&self.conn)?;
+        diesel::delete(
+            dsl::user_rss_auth_keys
+                .filter(dsl::user_id.eq(user_id))
+                .filter(dsl::auth_key.eq(auth_key)),
+        )
+        .execute(&self.conn)?;
         Ok(())
     }
 }

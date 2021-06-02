@@ -304,5 +304,5 @@ fn start_gc(state: web::Data<State>) {
 
             thread::sleep(Duration::from_secs(600));
         })
-        .expect("Failed to create fetcher thread!");
+        .expect("Failed to create GC thread!");
 }

@@ -4,15 +4,18 @@ use crate::data::sources::{canonicalize_uri, SubscribeError};
 use crate::data::users::{ModifyUserError, UserAuthError, UserId};
 use crate::data::DataError;
 use crate::fetcher::FetchRequest;
-use crate::session::protocol::{self, ClientMsg, Request, RequestId, Response, ResponseRssAuthKey, SimpleResult, UserCreateDomainResult, UserCreateRssAuthKeyResult};
+use crate::session::protocol::{
+    self, ClientMsg, Request, RequestId, Response, ResponseRssAuthKey, SimpleResult,
+    UserCreateDomainResult, UserCreateRssAuthKeyResult,
+};
 use crate::session::{UserConn, UserConnMsg};
 use crate::state::State;
 use actix::prelude::*;
+use rand::Rng;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
 use thiserror::Error;
-use rand::Rng;
 
 /// Manages user actors.
 pub struct UserManager {
@@ -688,9 +691,7 @@ impl User {
                 });
                 Ok(())
             }
-            Request::UserCreateRssAuthKey {
-                label
-            } => {
+            Request::UserCreateRssAuthKey { label } => {
                 let mut random_bytes = [0_u8; 8];
                 rand::thread_rng().fill(&mut random_bytes);
                 let mut auth_key = hex::encode(&random_bytes);
@@ -700,14 +701,12 @@ impl User {
                     data: Response::UserCreateRssAuthKey(UserCreateRssAuthKeyResult {
                         success: true,
                         key: auth_key,
-                        error: ""
+                        error: "",
                     }),
                 });
                 Ok(())
             }
-            Request::UserDeleteRssAuthKey {
-                key
-            } => {
+            Request::UserDeleteRssAuthKey { key } => {
                 data.user_delete_rss_auth_key(user.id(), &key)?;
                 conn.do_send(UserConnMsg::Response {
                     id,
