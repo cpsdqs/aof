@@ -694,7 +694,7 @@ impl User {
             Request::UserCreateRssAuthKey { label } => {
                 let mut random_bytes = [0_u8; 8];
                 rand::thread_rng().fill(&mut random_bytes);
-                let mut auth_key = hex::encode(&random_bytes);
+                let auth_key = hex::encode(&random_bytes);
                 data.user_create_rss_auth_key(user.id(), &auth_key, label.as_ref().map(|s| &**s))?;
                 conn.do_send(UserConnMsg::Response {
                     id,

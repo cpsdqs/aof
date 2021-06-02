@@ -1,7 +1,7 @@
 use crate::OpStateExt;
 use deno_core::error::AnyError;
 use deno_core::serde_json::{self, Value};
-use deno_core::{op_sync, Extension, JsRuntime, OpState, ZeroCopyBuf};
+use deno_core::{op_sync, Extension, OpState, ZeroCopyBuf};
 use thiserror::Error;
 
 #[derive(Debug, Error)]

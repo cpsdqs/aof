@@ -1,7 +1,6 @@
 use crate::ScriptContext;
 use deno_core::error::AnyError;
 use deno_core::include_js_files;
-use deno_core::JsRuntime;
 use deno_core::{v8, Extension};
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;

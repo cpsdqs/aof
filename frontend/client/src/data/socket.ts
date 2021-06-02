@@ -157,7 +157,7 @@ class Connection implements IConnection {
         return msg;
     }
 
-    req(name: string, data: any, onPartial?: (d: any) => void) {
+    req(name: string, data: any, onPartial?: (d: Uint8Array) => void) {
         return new Promise((resolve, reject) => {
             if (!this.isOpen) throw new Error(get('data.socket.req_not_open'));
             if (!this.socket) throw new Error('Error state');
@@ -169,7 +169,7 @@ class Connection implements IConnection {
                 buffer: null,
                 cursor: 0,
                 resolve,
-                partial: (data: any) => {
+                partial: (data: Uint8Array) => {
                     if (onPartial) {
                         try {
                             onPartial(data);
@@ -298,8 +298,8 @@ export function close() {
     return conn.close();
 }
 
-export async function req<T = unknown>(name: string, data: any) {
+export async function req<T = unknown>(name: string, data: any, onPartial?: (d: Uint8Array) => void) {
     const conn = await getConn();
-    const result = await conn.req(name, data);
+    const result = await conn.req(name, data, onPartial);
     return decode(result) as T;
 }

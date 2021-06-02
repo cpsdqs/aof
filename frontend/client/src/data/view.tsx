@@ -2,14 +2,15 @@ import { h, VNode } from 'preact';
 import { PureComponent } from 'preact/compat';
 import { EventEmitter } from 'uikit';
 import { canLoad, load } from './load';
-import { cache, views } from './cache';
-import { Key, FnLoad, FnR, Load, FnA } from './paths';
+import { cache, partials, views } from './cache';
+import { Key, FnLoad, FnR } from './paths';
 
 // TODO: refresh views when socket reconnects
 export class View<T> extends EventEmitter {
     private readonly key: Key<T>;
     keepCached = false;
     cached: T | null = null;
+    usePartials = false;
 
     constructor(key: Key<T>) {
         super();
@@ -31,6 +32,14 @@ export class View<T> extends EventEmitter {
         }
     }
 
+    get isPartial() {
+        return !this.loaded && this.partialLoaded;
+    }
+
+    get partialLoaded() {
+        return this.loaded || (this.usePartials && partials.has(this.key));
+    }
+
     get loaded() {
         if (this.keepCached && this.cached) return true;
         return cache.has(this.key);
@@ -42,6 +51,10 @@ export class View<T> extends EventEmitter {
             this.cached = cache.get(this.key);
         }
 
+        if (this.usePartials) {
+            if (this.loaded) return cache.get(this.key);
+            return partials.get(this.key);
+        }
         return cache.get(this.key);
     }
 
@@ -56,7 +69,7 @@ export class View<T> extends EventEmitter {
 
     notify() {
         this.lastError = null;
-        if (!this.loaded) this.load();
+        if (!this.partialLoaded) this.load();
         this.emit('update', this.get());
     }
 
@@ -84,6 +97,8 @@ type IOptions = {
     keepCached?: boolean,
     // jsx key
     key?: string,
+    // if true, will try to parse partial responses
+    usePartials?: boolean,
 };
 
 // This function exists because typescript type inference sucks
@@ -114,6 +129,7 @@ export class Connection<T> extends PureComponent<Connection.Props<T>> {
         this.view.on('update', this.viewDidUpdate);
         this.view.on('error', this.viewDidUpdate);
         this.view.keepCached = this.props.opts?.keepCached || false;
+        this.view.usePartials = this.props.opts?.usePartials || false;
         this.forceUpdate();
     }
     viewDidUpdate = () => {

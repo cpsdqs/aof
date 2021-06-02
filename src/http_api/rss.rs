@@ -289,7 +289,7 @@ async fn rss(
 }
 
 fn rewrite_html_resources(url_prefix: &str, html: String, referrer: Option<&str>) -> String {
-    let mut create_url = move |original: &str| {
+    let create_url = move |original: &str| {
         if let Ok(mut new_src) = aof_script::url::Url::parse(url_prefix) {
             {
                 let mut query_pairs = new_src.query_pairs_mut();

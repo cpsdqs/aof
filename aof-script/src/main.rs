@@ -1,5 +1,5 @@
 use aof_script::{url, ModLoader, ScriptRt, UnrestrictedContext};
-use futures::{FutureExt, StreamExt};
+use futures::StreamExt;
 use std::sync::Arc;
 
 async fn run() {

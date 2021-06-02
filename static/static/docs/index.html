@@ -30,7 +30,6 @@
             package for details on how much is available).
             Notable features that <em>do not work</em>:
             <ul>
-                <li><code>Node#removeChild</code></li>
                 <li>
                     <code>DOMParser#parseFromString</code> with any MIME type that isn't
                     <code>text/html</code>.
@@ -44,7 +43,7 @@
             <code>JSON</code>
         </li>
         <li>
-            <code>fetch</code> (including <code>Request</code>, <code>Response</code>,
+            <code>fetch</code> (including <code>URL</code>, <code>Request</code>, <code>Response</code>,
             <code>Blob</code>, etc.)
         </li>
     </ul>
@@ -55,23 +54,30 @@
     <pre>
 type SourceOutput = {
     // when was this source last updated?
-    // format must either be "2020-12-31" or "2020-12-31T16:59:00Z" (RFC3339).
+    // format must either be "2020-12-31" (date only) or "2020-12-31T16:59:00Z" (RFC3339).
     // adding this data is strongly recommended.
     last_updated?: string | null,
+
     tags: {
-        [k]: any, // see below
+        [k :string]: any, // see below for details
     },
+
     // items in this source
     items: SourceOutputItem[],
+
+    // rare: if your source already contains all the item data, you can set the data here.
+    item_data?: { [path: string]: SourceItemOutput },
 };
 type SourceOutputItem = {
     // A path that can be passed to loadSourceItem to load this item.
     path: string,
+
     // Virtual items only exist in the source and cannot actually be loaded
     // (the path can be a dummy).
     virtual?: boolean,
+
     tags?: {
-        [k]: any, // see below
+        [k: string]: any, // see below
     },
 };
 
@@ -143,8 +149,12 @@ type ContentTag {
             <code>title</code>: the title of this item
         </li>
         <li>
-            <code>canonical_url</code>: if this is a <code>virtual</code> item, then this tag
-            should be present to indicate where the resource may be found.
+            <code>canonical_url</code>: indicates where this resource may be found on the web.
+            Required if this is a virtual item.
+        </li>
+        <li>
+            <code>last_updated</code>: indicates when this item was last updated.
+            Adding this is strongly recommended, as it may be used for RSS feeds.
         </li>
         <li>
             <code>contents</code>: this may contain a small preview of the contents for virtual
@@ -154,7 +164,7 @@ type ContentTag {
     <h4>Source Item Data Tags</h4>
     <ul>
         <li>
-            <code>title</code>: the title of this item
+            <code>title</code>: the title of this item (as shown in the content page)
         </li>
         <li>
             <code>preface</code>: similar to the <code>description</code> field of sources, this

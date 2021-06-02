@@ -127,26 +127,29 @@ const DEFAULT_NOTE_STYLES = DEFAULT_SHADOW_STYLES;
 
 export function SourceItemContents({ uri, referrer }: { uri: string, referrer?: string }) {
     return connectf(join(SOURCE_ITEM_DATA, parseUri(uri)), view => {
-        let contents;
+        let contents = null;
+        let loading = false;
         if (view.hasError) {
             contents = <ErrorDisplay error={view.getError()} />;
-        } else if (view.loaded) {
+        } else if (view.partialLoaded) {
             const data = view.get();
             if (data) {
                 contents = <SourceItemContentRender data={data} referrer={referrer} />;
+                loading = view.isPartial;
             } else {
                 contents = <SourceItemNoData uri={uri} />;
             }
         } else {
-            contents = <Progress block />;
+            loading = true;
         }
 
         return (
             <div class="source-item-contents">
                 {contents}
+                {loading ? <Progress block /> : null}
             </div>
         )
-    });
+    }, { usePartials: true });
 }
 
 function SourceItemContentRender({ data, referrer }: { data: SourceItemData, referrer?: string }) {

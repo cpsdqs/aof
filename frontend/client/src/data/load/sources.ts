@@ -1,5 +1,5 @@
 import { decode, encode } from '@msgpack/msgpack';
-import { cache } from '../cache';
+import { cache, partials } from '../cache';
 import * as paths from '../paths';
 import { req } from '../socket';
 import get from '../../locale';
@@ -14,6 +14,7 @@ import {
     SourceItemData, SOURCES_LIST_USER
 } from '../paths';
 import { decrypt, encrypt, NONCE_LENGTH } from '../aofc';
+import { partialDecode } from '../partial-decode';
 
 function makeUri(parts: string[]) {
     const domain = parts[0];
@@ -65,8 +66,16 @@ export default {
         return res;
     },
     source_item_data: async (_, ...parts) => {
-        const res = await req<SourceItemData>('source_item_data', { uri: makeUri(parts) });
-        cache.insert(join(SOURCE_ITEM_DATA, parts), res);
+        const cacheKey = join(SOURCE_ITEM_DATA, parts);
+        const res = await req<SourceItemData>('source_item_data', { uri: makeUri(parts) }, data => {
+            try {
+                const partial = partialDecode(data);
+                partials.insert(cacheKey, partial);
+            } catch {
+                // nothing
+            }
+        });
+        cache.insert(cacheKey, res);
         return res;
     },
     source_user_data: async (_, ...parts) => {

@@ -103,13 +103,14 @@ export default class PageStack extends PureComponent<PageStack.Props> implements
         const { minDepth, mapping } = this.getMapping();
         const depth = isDead ? this.#depth.value : Math.max(minDepth, this.#depth.value);
 
+        const r = (x: number) => width > 0 ? Math.round(x * width) / width : x; // round to whole pixels
         const getMapped = (x: number) => {
             const fract = x - Math.floor(x);
             let prev = mapping[0].span;
             for (const { pos, span } of mapping) {
                 if (pos > x) return [
-                    (span[0] - prev[0]) * fract + prev[0],
-                    (span[1] - prev[1]) * fract + prev[1],
+                    (r(span[0]) - r(prev[0])) * fract + r(prev[0]),
+                    (r(span[1]) - r(prev[1])) * fract + r(prev[1]),
                 ];
                 prev = span;
             }

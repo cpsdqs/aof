@@ -77,7 +77,7 @@ where
 }
 
 #[derive(Debug, Error)]
-enum ReqDeserError {
+pub enum ReqDeserError {
     #[error("unknown request named {0:?}")]
     UnknownName(String),
     #[error("failed to decode data: {0}")]
