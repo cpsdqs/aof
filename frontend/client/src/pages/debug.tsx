@@ -27,7 +27,7 @@ function exposeAPI() {
 }
 
 async function regenClientKey() {
-    if (confirm('Are you sure you want to regenerate your client key?')) {
+    if (confirm('Are you sure you want to regenerate your client key?\nYou will need to re-enter your secret key on all devices.')) {
         await req('user_regen_client_key', null);
     }
 }

@@ -66,6 +66,7 @@ fn set_user_session(
 struct AuthResponseSuccess {
     auth: bool,
     name: String,
+    secret_key: String,
 }
 
 #[derive(Serialize)]
@@ -95,6 +96,7 @@ async fn get_login(data: web::Data<State>, session: Session) -> impl Responder {
             HttpResponse::Ok().json(AuthResponseSuccess {
                 auth: true,
                 name: user.name().into(),
+                secret_key: user.secret_key().into(),
             })
         }
         Err(SessionError::NoSession) => HttpResponse::Ok().json(AuthResponseFailure::NO_SESSION),
@@ -114,6 +116,7 @@ struct LoginRequest {
 #[derive(Serialize)]
 struct LoginResponseSuccess {
     success: bool,
+    name: String,
     secret_key: String,
 }
 #[derive(Serialize)]
@@ -193,6 +196,7 @@ async fn post_login(
                     }
                     HttpResponse::Ok().json(LoginResponseSuccess {
                         success: true,
+                        name: user.name().into(),
                         secret_key: user.secret_key().into(),
                     })
                 }

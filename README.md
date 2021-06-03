@@ -5,6 +5,7 @@ AOF is a server application for regularly fetching web comics and the likes to c
 without making use of standard formats. It also includes a web interface.
 
 ### Current Caveats
+- No rate limits
 - It does not support cumulative streams such as RSS
 - The only way to access data in a machine-readable format is via a non-standard API
 - The scripting API is quite flaky
@@ -61,18 +62,3 @@ Required items:
     - `wss://<domain>` for web sockets
 - `manifest-src`
     - `'self'` for PWA
-
-## impl todo
-- enforce max size of resources
-- implement rate limiting tokens
-- general rate limiting
-- implement rest of events
-- user data read state can get too big for the protocol if the source has like 500 items
-- delete resources thing in db bc not gonna use it probably
-- decrypting SK later does not cause views that requested decryption earlier to update (wontfix?)
-- fix logging in with case-insensitive name not fixing the name (fixed maybe? idk)
-- some way of doing infinite streams (e.g. RSS)
-- setTimeout is not defined in domain scripts?? (not very important)
-- deno URL is horribly broken
-- two different sources with the same hash will collide in multiple ways (will this cause issues?)
-- client sends redundant requests if data isn't loaded yet but used in multiple places at once

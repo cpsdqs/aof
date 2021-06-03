@@ -3,6 +3,7 @@ import * as paths from '../paths';
 import { req } from '../socket';
 import get from '../../locale';
 import { AOFC_KEY_STORAGE, IResult } from '../paths';
+import { getSession } from '../aofc';
 
 async function verifyResponseStatus(res: Response) {
     if (!res.ok) {
@@ -33,6 +34,7 @@ export default {
         const res = await r.json();
         if (res.auth) {
             cache.insert(paths.LOGIN, res.name);
+            cache.insert(paths.LOGIN_SECRET_KEY, res.secret_key);
         } else if (res.error === 'no_session') {
             cache.insert(paths.LOGIN, '');
         } else throw new Error(res.error);
@@ -56,8 +58,13 @@ export default {
         await verifyResponseStatus(r);
         const res = await r.json();
         if (res.success) {
-            cache.insert(paths.LOGIN, name);
+            cache.insert(paths.LOGIN, res.name);
             cache.insert(paths.LOGIN_SECRET_KEY, res.secret_key);
+
+            // try decrypting the secret key with the login password
+            getSession(false, { password, persist }).catch(err => {
+                console.debug(`Did not decrypt SK with login: ${err}`);
+            });
         } else if (res.error === 'invalid') {
             throw new Error(get('data.login.invalid'));
         } else if (res.error === 'logged_in') {
